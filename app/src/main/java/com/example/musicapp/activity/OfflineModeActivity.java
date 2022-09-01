@@ -26,6 +26,6 @@ public class OfflineModeActivity extends AppCompatActivity {
         Intent intentReceiver = getIntent();
         List<Song> songs = (List<Song>) intentReceiver.getSerializableExtra(KEY_PASS_LIST_SONG);
 
-        binding.tvSongs.setText(songs.get(1).getTitle());
+
     }
 }

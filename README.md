@@ -11,7 +11,7 @@ Features:
 9. Background (get list of songs)
 10. Splash screen
 11. RecycleView (list music)
-12. ViewPager2 + Fragment (Main - Favourite fragment)
+12. Tablayout + Fragment (Main - Favourite fragment)
 13. LogIn with facebook (get Name, ID)
 14. Save account use Room (ID, favourite list music by id)
 15. Architecture: room, view binding, view model, MVP
