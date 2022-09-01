@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Music App</string>
+
+    <string name="intro_name_splash">Jing mp3</string>
+    <string name="intro_name_design">Design by Cuoc Dat</string>
+
+    <string name="tv_question_play_music">Play music mode:</string>
+    <string name="btn_play_offline">Offline</string>
+    <string name="btn_play_online">Online</string>
+</resources>
