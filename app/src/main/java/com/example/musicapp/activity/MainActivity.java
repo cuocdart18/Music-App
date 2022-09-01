@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicapp.AppUtils;
 import com.example.musicapp.databinding.ActivityMainBinding;
 import com.example.musicapp.models.Song;
 import com.google.gson.Gson;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         binding.btnMusicOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "online mode", Toast.LENGTH_SHORT).show();
+                onClickBtnOnlineMode();
             }
         });
 
@@ -52,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
                 onClickBtnOfflineMode();
             }
         });
+    }
+
+    private void onClickBtnOnlineMode() {
+        if (!AppUtils.isNetworkAvailable(this)) {
+            Toast.makeText(this, "Network is disconnected", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(MainActivity.this, OnlineModeActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void onClickBtnOfflineMode() {
