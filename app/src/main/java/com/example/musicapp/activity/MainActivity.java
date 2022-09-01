@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapp.databinding.ActivityMainBinding;
 import com.example.musicapp.models.Song;
+import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_READ_EXTERNAL = 1001;
+    private static final String KEY_PASS_LIST_SONG = "key_pass_list_song";
     private ActivityMainBinding binding;
     private List<Song> songs;
 
@@ -54,9 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onClickBtnOfflineMode() {
         Intent intent = new Intent(MainActivity.this, OfflineModeActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("songs_from_device", (Serializable) songs);
-        intent.putExtras(bundle);
+        intent.putExtra(KEY_PASS_LIST_SONG, (Serializable) songs);
         startActivity(intent);
     }
 

@@ -29,6 +29,8 @@
         <activity
             android:name=".activity.MainActivity"
             android:exported="true" />
+        <activity android:name=".activity.OfflineModeActivity" />
+        <activity android:name=".activity.OnlineModeActivity" />
     </application>
 
 </manifest>
