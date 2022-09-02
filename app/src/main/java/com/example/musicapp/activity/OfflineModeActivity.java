@@ -12,6 +12,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
+import com.example.musicapp.adapter.ListSongRecyclerAdapter;
 import com.example.musicapp.adapter.ViewPager2ListSongAdapter;
 import com.example.musicapp.databinding.ActivityOfflineModeBinding;
 import com.example.musicapp.models.Song;

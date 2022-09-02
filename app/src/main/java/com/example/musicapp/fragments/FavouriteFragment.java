@@ -9,11 +9,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.musicapp.databinding.FragmentFavouriteOfflineModeBinding;
+
 public class FavouriteFragment extends Fragment {
+    private FragmentFavouriteOfflineModeBinding binding;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        binding = FragmentFavouriteOfflineModeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 }
