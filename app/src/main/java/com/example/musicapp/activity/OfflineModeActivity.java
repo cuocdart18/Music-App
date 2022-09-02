@@ -1,26 +1,15 @@
 package com.example.musicapp.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.musicapp.AppUtils;
-import com.example.musicapp.R;
-import com.example.musicapp.adapter.ListSongRecyclerAdapter;
 import com.example.musicapp.adapter.ViewPager2ListSongAdapter;
 import com.example.musicapp.databinding.ActivityOfflineModeBinding;
-import com.example.musicapp.interface_callback.IOnCallbackRefreshFromActivity;
-import com.example.musicapp.models.Song;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
-import java.util.List;
 
 public class OfflineModeActivity extends AppCompatActivity {
     private ActivityOfflineModeBinding binding;

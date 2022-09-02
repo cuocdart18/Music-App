@@ -33,6 +33,7 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // init template
         initConfigSwipeRefreshLayout();
         initDataInRecycler();
     }
