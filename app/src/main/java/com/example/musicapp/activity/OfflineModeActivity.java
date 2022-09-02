@@ -24,7 +24,6 @@ import java.util.List;
 
 public class OfflineModeActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     private ActivityOfflineModeBinding binding;
-    private List<Song> songs;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,7 +48,6 @@ public class OfflineModeActivity extends AppCompatActivity implements SwipeRefre
 
     @Override
     public void onRefresh() {
-        this.songs = AppUtils.getInstance(this).getAllMediaMp3Files();
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {

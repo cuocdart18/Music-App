@@ -29,7 +29,11 @@ public class ListSongRecyclerAdapter extends RecyclerView.Adapter<ListSongRecycl
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-
+        Song song = songs.get(position);
+        if (song == null)
+            return;
+        holder.binding.tvTitle.setText(song.getTitle());
+        holder.binding.tvSinger.setText(song.getSinger());
     }
 
     @Override
