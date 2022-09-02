@@ -11,6 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.musicapp.AppUtils;
 import com.example.musicapp.models.Song;
+import com.example.musicapp.thread.GetAllMusicThread;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.List;
 public class MyMusicOfflineService extends Service {
     public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
     public static final String KEY_SEND_ACTION = "send_play_list";
+
+    public static final String KEY_RECEIVE_ACTION = "receive_action";
 
     public static final String KEY_PLAYLIST_SONG = "play_list_song";
     public static final int ACTION_SEND_PLAYLIST = 999;
@@ -47,16 +50,37 @@ public class MyMusicOfflineService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+
+        }
+
+        handleActionFromBroadcast(bundle);
+        return START_STICKY;
     }
 
-    private void getAllMedia() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                songs = AppUtils.getInstance(MyMusicOfflineService.this).getAllMediaMp3Files();
-            }
-        });
-        thread.start();
+    private void handleActionFromBroadcast(Bundle bundle) {
+        int action = bundle.getInt(KEY_RECEIVE_ACTION);
+
+        switch (action) {
+            case ACTION_PAUSE:
+                break;
+            case ACTION_RESUME:
+                break;
+            case ACTION_NEXT:
+                break;
+            case ACTION_PREV:
+                break;
+            case ACTION_STOP:
+                break;
+            case ACTION_START:
+                break;
+        }
     }
+
+    // init for songs of service
+    private void getAllMedia() {
+        new GetAllMusicThread(MyMusicOfflineService.this, this.songs).start();
+    }
+
 }
