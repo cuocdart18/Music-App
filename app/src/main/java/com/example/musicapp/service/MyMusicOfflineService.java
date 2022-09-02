@@ -46,7 +46,6 @@ import java.io.Serializable;
 import java.util.List;
 
 public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
-
     private long currentSong = -1;
     private int positionSong = -1;
     private double startTime = 0;
@@ -91,7 +90,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         }
 
         handleActionFromBroadcast(intent);
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void handleActionFromBroadcast(Intent intent) {

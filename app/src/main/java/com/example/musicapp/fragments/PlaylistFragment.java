@@ -33,20 +33,18 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
-import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.adapter.ICallbackOnClickItem;
+import com.example.musicapp.adapter.ICallbackPlaylistFragment;
 import com.example.musicapp.adapter.ListSongRecyclerAdapter;
-import com.example.musicapp.databinding.ActivityOfflineModeBinding;
 import com.example.musicapp.databinding.FragmentPlaylistOfflineModeBinding;
 import com.example.musicapp.models.Song;
 import com.example.musicapp.service.MyMusicOfflineService;
 
 import java.util.List;
 
-public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem {
+public class PlaylistFragment extends Fragment
+        implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem, ICallbackPlaylistFragment {
     private FragmentPlaylistOfflineModeBinding binding;
-    private OfflineModeActivity offlineModeActivity;
-    private ActivityOfflineModeBinding bindingContext;
 
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
@@ -69,10 +67,6 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaylistOfflineModeBinding.inflate(inflater, container, false);
-
-        // reference bindContext
-        offlineModeActivity = (OfflineModeActivity) getActivity();
-        bindingContext = offlineModeActivity.getBinding();
 
         // regis broadcast
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver,
@@ -128,13 +122,6 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
         }
     }
 
-    // send action to service
-    private void sendActionToMusicService(int action) {
-        Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
-        intentToService.putExtra(KEY_RECEIVE_ACTION, action);
-        getContext().startService(intentToService);
-    }
-
     @Override
     public void onClickItemInRecycler(Song song) {
         Toast.makeText(getContext(), "play music", Toast.LENGTH_SHORT).show();
@@ -143,6 +130,38 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
     @Override
     public void onClickImvFavourite(Song song) {
         Toast.makeText(getContext(), "fav", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickShuffle() {
+        Toast.makeText(getContext(), "shuffle", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickSkipPrev() {
+        Toast.makeText(getContext(), "prev", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickPlayPause() {
+        Toast.makeText(getContext(), "play pause", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickSkipNext() {
+        Toast.makeText(getContext(), "next", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClickLoop() {
+        Toast.makeText(getContext(), "loop", Toast.LENGTH_SHORT).show();
+    }
+
+    // send action to service
+    private void sendActionToMusicService(int action) {
+        Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
+        intentToService.putExtra(KEY_RECEIVE_ACTION, action);
+        getContext().startService(intentToService);
     }
 
     // fill data (mp3 file) for recycler view
@@ -179,4 +198,5 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
             }
         }, 1000);
     }
+
 }
