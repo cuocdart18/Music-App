@@ -15,12 +15,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
+import com.example.musicapp.adapter.ICallbackOnClickItem;
 import com.example.musicapp.adapter.ListSongRecyclerAdapter;
 import com.example.musicapp.databinding.FragmentPlaylistOfflineModeBinding;
+import com.example.musicapp.models.Song;
 
-public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem {
     private FragmentPlaylistOfflineModeBinding binding;
-    private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter();
+    private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
 
     @Nullable
     @Override
@@ -64,5 +66,15 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
                 binding.refreshListMusicLayout.setRefreshing(false);
             }
         }, 1000);
+    }
+
+    @Override
+    public void onClickItemInRecycler(Song song) {
+
+    }
+
+    @Override
+    public void onClickImvFavourite(Song song) {
+
     }
 }

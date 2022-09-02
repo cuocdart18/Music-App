@@ -1,9 +1,11 @@
 package com.example.musicapp.adapter;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +18,11 @@ import java.util.List;
 
 public class ListSongRecyclerAdapter extends RecyclerView.Adapter<ListSongRecyclerAdapter.SongViewHolder> {
     private List<Song> songs;
+    private ICallbackOnClickItem iCallbackOnClickItem;
+
+    public ListSongRecyclerAdapter(ICallbackOnClickItem iCallbackOnClickItem) {
+        this.iCallbackOnClickItem = iCallbackOnClickItem;
+    }
 
     public void setDataChange(List<Song> songs) {
         this.songs = songs;
@@ -33,11 +40,29 @@ public class ListSongRecyclerAdapter extends RecyclerView.Adapter<ListSongRecycl
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = songs.get(position);
-        if (song != null) {
-            holder.binding.tvTitle.setText(song.getTitle());
-            holder.binding.tvSinger.setText(song.getSinger());
-            holder.binding.imvFavourite.setImageResource(R.drawable.ic_favorite_border);
+
+        if (song == null) {
+            return;
         }
+
+        //set data
+        holder.binding.tvTitle.setText(song.getTitle());
+        holder.binding.tvSinger.setText(song.getSinger());
+        holder.binding.imvFavourite.setImageResource(R.drawable.ic_favorite_border);
+        //set on Click
+        holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iCallbackOnClickItem.onClickItemInRecycler(song);
+            }
+        });
+
+        holder.binding.imvFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iCallbackOnClickItem.onClickImvFavourite(song);
+            }
+        });
     }
 
     @Override
