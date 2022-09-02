@@ -22,6 +22,8 @@ public class OfflineModeActivity extends AppCompatActivity {
 
         // init Template
         initTabViewpager2();
+
+        //
     }
 
     @Override
@@ -55,5 +57,9 @@ public class OfflineModeActivity extends AppCompatActivity {
                         }
                     }
                 }).attach();
+    }
+
+    public ActivityOfflineModeBinding getBinding() {
+        return this.binding;
     }
 }

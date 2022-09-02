@@ -1,5 +1,17 @@
 package com.example.musicapp.fragments;
 
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_LOOP;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_NEXT;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_PAUSE;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_PREV;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_RESUME;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_SHUFFLE;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_START;
+import static com.example.musicapp.service.MyMusicOfflineService.ACTION_STOP;
+import static com.example.musicapp.service.MyMusicOfflineService.KEY_RECEIVE_ACTION;
+import static com.example.musicapp.service.MyMusicOfflineService.KEY_SEND_ACTION;
+import static com.example.musicapp.service.MyMusicOfflineService.SEND_TO_ACTIVITY;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,8 +33,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
+import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.adapter.ICallbackOnClickItem;
 import com.example.musicapp.adapter.ListSongRecyclerAdapter;
+import com.example.musicapp.databinding.ActivityOfflineModeBinding;
 import com.example.musicapp.databinding.FragmentPlaylistOfflineModeBinding;
 import com.example.musicapp.models.Song;
 import com.example.musicapp.service.MyMusicOfflineService;
@@ -31,10 +45,14 @@ import java.util.List;
 
 public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem {
     private FragmentPlaylistOfflineModeBinding binding;
+    private OfflineModeActivity offlineModeActivity;
+    private ActivityOfflineModeBinding bindingContext;
+
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
+    private boolean isPlaying;
 
-    // receive event from service
+    // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -52,8 +70,13 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaylistOfflineModeBinding.inflate(inflater, container, false);
 
+        // reference bindContext
+        offlineModeActivity = (OfflineModeActivity) getActivity();
+        bindingContext = offlineModeActivity.getBinding();
+
         // regis broadcast
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, new IntentFilter(MyMusicOfflineService.SEND_TO_ACTIVITY));
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver,
+                new IntentFilter(SEND_TO_ACTIVITY));
 
         // call service
         Intent intentCallService = new Intent(getContext(), MyMusicOfflineService.class);
@@ -71,6 +94,11 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiver);
@@ -78,12 +106,33 @@ public class PlaylistFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     // this method handle any actions from broadcast
     private void handleActionFromService(Bundle bundle) {
-        int action = bundle.getInt(MyMusicOfflineService.KEY_SEND_ACTION);
+        int action = bundle.getInt(KEY_SEND_ACTION);
 
         switch (action) {
-            case 1:
+            case ACTION_PAUSE:
+                break;
+            case ACTION_RESUME:
+                break;
+            case ACTION_NEXT:
+                break;
+            case ACTION_PREV:
+                break;
+            case ACTION_STOP:
+                break;
+            case ACTION_START:
+                break;
+            case ACTION_SHUFFLE:
+                break;
+            case ACTION_LOOP:
                 break;
         }
+    }
+
+    // send action to service
+    private void sendActionToMusicService(int action) {
+        Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
+        intentToService.putExtra(KEY_RECEIVE_ACTION, action);
+        getContext().startService(intentToService);
     }
 
     @Override
