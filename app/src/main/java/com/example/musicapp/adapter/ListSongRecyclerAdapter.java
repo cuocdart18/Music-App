@@ -46,8 +46,7 @@ public class ListSongRecyclerAdapter extends RecyclerView.Adapter<ListSongRecycl
         }
 
         //set data
-        holder.binding.tvTitle.setText(song.getTitle());
-        holder.binding.tvSinger.setText(song.getSinger());
+        holder.binding.setSong(song);
         holder.binding.imvFavourite.setImageResource(R.drawable.ic_favorite_border);
         //set on Click
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {

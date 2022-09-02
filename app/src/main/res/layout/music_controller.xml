@@ -1,91 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Khi co don em nho den ai"
-        android:textColor="@color/teal_700"
-        android:textSize="18sp"
-        android:visibility="gone" />
+    <data>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp">
+        <variable
+            name="title"
+            type="String" />
 
-        <TextView
-            android:id="@+id/tv_start_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="00:00" />
-
-        <SeekBar
-            android:id="@+id/sb_music_timeline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/tv_final_time"
-            android:layout_toEndOf="@id/tv_start_time" />
-
-        <TextView
-            android:id="@+id/tv_final_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="10dp"
-            android:text="00:00" />
-    </RelativeLayout>
+        <variable
+            name="playlistFragment"
+            type="com.example.musicapp.fragments.PlaylistFragment" />
+    </data>
 
     <LinearLayout
-        android:id="@+id/ll_control_zone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imv_shuffle"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_shuffle" />
+            android:text="@{title}"
+            android:textColor="@color/teal_700"
+            android:textSize="18sp"
+            android:visibility="invisible" />
 
-        <ImageView
-            android:id="@+id/imv_skip_prev"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_skip_previous" />
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp">
 
-        <ImageView
-            android:id="@+id/imv_play_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_pause" />
+            <TextView
+                android:id="@+id/tv_start_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="00:00" />
 
-        <ImageView
-            android:id="@+id/imv_skip_next"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_skip_next" />
+            <SeekBar
+                android:id="@+id/sb_music_timeline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/tv_final_time"
+                android:layout_toEndOf="@id/tv_start_time" />
 
-        <ImageView
-            android:id="@+id/imv_loop"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tv_final_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="10dp"
+                android:text="00:00" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_control_zone"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_repeat" />
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imv_shuffle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:onClick="@{()->playlistFragment.onClickShuffle()}"
+                android:src="@{playlistFragment.isShuffling ? @drawable/ic_shuffle_on : @drawable/ic_shuffle}" />
+
+            <ImageView
+                android:id="@+id/imv_skip_prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:onClick="@{()->playlistFragment.onClickSkipPrev()}"
+                android:src="@drawable/ic_skip_previous" />
+
+            <ImageView
+                android:id="@+id/imv_play_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:onClick="@{()->playlistFragment.onClickPlayPause()}"
+                android:src="@{playlistFragment.isPlaying ? @drawable/ic_play_arrow : @drawable/ic_pause}" />
+
+            <ImageView
+                android:id="@+id/imv_skip_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/ic_skip_next"
+                android:onClick="@{()->playlistFragment.onClickSkipNext()}" />
+
+            <ImageView
+                android:id="@+id/imv_loop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:onClick="@{()->playlistFragment.onClickLoop()}"
+                android:src="@{playlistFragment.isLooping ? @drawable/ic_repeat_on : @drawable/ic_repeat}" />
+        </LinearLayout>
+
     </LinearLayout>
-
-</LinearLayout>
+</layout>

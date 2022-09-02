@@ -45,14 +45,16 @@ import com.example.musicapp.service.MyMusicOfflineService;
 import java.util.List;
 
 public class PlaylistFragment extends Fragment
-        implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem, ICallbackPlaylistFragment {
+        implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem {
     private FragmentPlaylistOfflineModeBinding binding;
-    private OfflineModeActivity offlineModeActivity = (OfflineModeActivity) getActivity();
+    private OfflineModeActivity offlineModeActivity;
     private ActivityOfflineModeBinding bindingActivity;
 
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
-    private boolean isPlaying;
+    public boolean isPlaying;
+    public boolean isShuffling;
+    public boolean isLooping;
 
     // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -71,6 +73,8 @@ public class PlaylistFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaylistOfflineModeBinding.inflate(inflater, container, false);
+
+        offlineModeActivity = (OfflineModeActivity) getActivity();
         bindingActivity = offlineModeActivity.getBinding();
 
         // regis broadcast
@@ -138,19 +142,16 @@ public class PlaylistFragment extends Fragment
         Toast.makeText(getContext(), "fav", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
     public void onClickShuffle() {
         Toast.makeText(getContext(), "shuffle", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_SHUFFLE);
     }
 
-    @Override
     public void onClickSkipPrev() {
         Toast.makeText(getContext(), "prev", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_PREV);
     }
 
-    @Override
     public void onClickPlayPause() {
         Toast.makeText(getContext(), "play pause", Toast.LENGTH_SHORT).show();
         if (isPlaying) {
@@ -160,13 +161,11 @@ public class PlaylistFragment extends Fragment
         }
     }
 
-    @Override
     public void onClickSkipNext() {
         Toast.makeText(getContext(), "next", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_NEXT);
     }
 
-    @Override
     public void onClickLoop() {
         Toast.makeText(getContext(), "loop", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_LOOP);
@@ -213,5 +212,4 @@ public class PlaylistFragment extends Fragment
             }
         }, 1000);
     }
-
 }

@@ -51,6 +51,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private double startTime = 0;
     private double finalTime = 0;
     private boolean isPlaying;
+    private boolean isLoop;
 
     private Song song;
     private List<Song> songs;
@@ -132,6 +133,9 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        if (isLoop) {
+            mp.start();
+        }
         nextMusic();
     }
 

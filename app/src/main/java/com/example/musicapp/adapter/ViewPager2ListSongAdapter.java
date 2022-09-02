@@ -10,11 +10,13 @@ import com.example.musicapp.fragments.PlaylistFragment;
 
 public class ViewPager2ListSongAdapter extends FragmentStateAdapter {
     private static final int TAB_COUNT = 2;
-    private PlaylistFragment playlistFragment = new PlaylistFragment();
-    private FavouriteFragment favouriteFragment = new FavouriteFragment();
+    private PlaylistFragment playlistFragment;
+    private FavouriteFragment favouriteFragment;
 
     public ViewPager2ListSongAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
+        playlistFragment = new PlaylistFragment();
+        favouriteFragment = new FavouriteFragment();
     }
 
     @NonNull
@@ -36,10 +38,10 @@ public class ViewPager2ListSongAdapter extends FragmentStateAdapter {
     }
 
     public PlaylistFragment getPlaylistFragment() {
-        return this.playlistFragment;
+        return playlistFragment;
     }
 
     public FavouriteFragment getFavouriteFragment() {
-        return this.favouriteFragment;
+        return favouriteFragment;
     }
 }
