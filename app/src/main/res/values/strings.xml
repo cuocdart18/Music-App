@@ -7,4 +7,7 @@
     <string name="tv_question_play_music">Play music mode:</string>
     <string name="btn_play_offline">Offline</string>
     <string name="btn_play_online">Online</string>
+
+    <string name="channel_name">play_music</string>
+    <string name="channel_description">description</string>
 </resources>

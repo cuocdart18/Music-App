@@ -33,6 +33,10 @@
             android:exported="true" />
         <activity android:name=".activity.OfflineModeActivity" />
         <activity android:name=".activity.OnlineModeActivity" />
+
+        <service android:name=".service.MyMusicOfflineService" />
+
+        <receiver android:name=".broadcast_receiver.PlayMusicOfflineBroadcast" />
     </application>
 
 </manifest>
