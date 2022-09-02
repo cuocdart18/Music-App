@@ -15,14 +15,14 @@ import com.example.musicapp.R;
 import com.example.musicapp.adapter.ListSongRecyclerAdapter;
 import com.example.musicapp.adapter.ViewPager2ListSongAdapter;
 import com.example.musicapp.databinding.ActivityOfflineModeBinding;
+import com.example.musicapp.interface_callback.IOnCallbackRefreshFromActivity;
 import com.example.musicapp.models.Song;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
 
-
-public class OfflineModeActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class OfflineModeActivity extends AppCompatActivity {
     private ActivityOfflineModeBinding binding;
 
     @Override
@@ -32,7 +32,6 @@ public class OfflineModeActivity extends AppCompatActivity implements SwipeRefre
         setContentView(binding.getRoot());
 
         // init Template
-        initConfigSwipeRefreshLayout();
         initTabViewpager2();
     }
 
@@ -44,23 +43,6 @@ public class OfflineModeActivity extends AppCompatActivity implements SwipeRefre
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public void onRefresh() {
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                binding.listSong.refreshListMusicLayout.setRefreshing(false);
-            }
-        }, 1500);
-    }
-
-    private void initConfigSwipeRefreshLayout() {
-        binding.listSong.refreshListMusicLayout.setOnRefreshListener(this::onRefresh);
-        binding.listSong.refreshListMusicLayout.setColorSchemeColors(getResources().getColor(R.color.teal_700));
     }
 
     private void initTabViewpager2() {

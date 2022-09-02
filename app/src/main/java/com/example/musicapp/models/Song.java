@@ -6,6 +6,7 @@ public class Song implements Serializable {
     private long id;
     private String title;
     private String singer;
+    private boolean isPlaying;
 
     public Song(long id, String title, String singer) {
         this.id = id;
@@ -35,5 +36,13 @@ public class Song implements Serializable {
 
     public void setSinger(String singer) {
         this.singer = singer;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
     }
 }

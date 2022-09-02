@@ -25,6 +25,7 @@
         <entry key="app/src/main/res/layout/fragment_favourite_offline_mode.xml" value="0.3173828125" />
         <entry key="app/src/main/res/layout/fragment_playlist_offline_mode.xml" value="0.31354166666666666" />
         <entry key="app/src/main/res/layout/item_song_offline_mode.xml" value="0.31354166666666666" />
+        <entry key="app/src/main/res/layout/item_song_offline_mode_playing.xml" value="0.31354166666666666" />
         <entry key="app/src/main/res/layout/list_song_in_offline_mode.xml" value="0.31354166666666666" />
         <entry key="app/src/main/res/layout/music_controller.xml" value="0.31354166666666666" />
         <entry key="app/src/main/res/layout/top_bar_offline_mode.xml" value="0.31354166666666666" />
