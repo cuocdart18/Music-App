@@ -1,13 +1,31 @@
 package com.example.musicapp.service;
 
+import static com.example.musicapp.AppUtils.ACTION_LOOP;
+import static com.example.musicapp.AppUtils.ACTION_NEXT;
+import static com.example.musicapp.AppUtils.ACTION_PAUSE;
+import static com.example.musicapp.AppUtils.ACTION_PREV;
+import static com.example.musicapp.AppUtils.ACTION_RESUME;
+import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
+import static com.example.musicapp.AppUtils.ACTION_START;
+import static com.example.musicapp.AppUtils.ACTION_STOP;
+import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
+import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
+import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
@@ -23,29 +41,32 @@ import com.example.musicapp.broadcast_receiver.PlayMusicOfflineBroadcast;
 import com.example.musicapp.models.Song;
 import com.example.musicapp.thread.GetAllMusicThread;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-public class MyMusicOfflineService extends Service {
-    public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
+public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
-    public static final String KEY_SEND_ACTION = "send_action";
-    public static final String KEY_RECEIVE_ACTION = "receive_action";
-
-    public static final int ACTION_PAUSE = 1001;
-    public static final int ACTION_RESUME = 1002;
-    public static final int ACTION_NEXT = 1003;
-    public static final int ACTION_PREV = 1004;
-    public static final int ACTION_STOP = 1005;
-    public static final int ACTION_START = 1006;
-    public static final int ACTION_SHUFFLE = 1007;
-    public static final int ACTION_LOOP = 1008;
+    private long currentSong = -1;
+    private int positionSong = -1;
+    private double startTime = 0;
+    private double finalTime = 0;
+    private boolean isPlaying;
 
     private Song song;
     private List<Song> songs;
-    private boolean isPlaying;
     private MediaPlayer media;
     private NotificationCompat.Builder notiBuilder;
+
+    // handler update time
+    Handler handler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            startTime = media.getCurrentPosition();
+            handler.postDelayed(runnable, 1000);
+        }
+    };
 
     @Nullable
     @Override
@@ -58,6 +79,8 @@ public class MyMusicOfflineService extends Service {
         super.onCreate();
         // read all media file by worker thread
         getAllMedia();
+        // init media
+        initMediaPlayer();
     }
 
     @Override
@@ -92,6 +115,71 @@ public class MyMusicOfflineService extends Service {
             case ACTION_LOOP:
                 break;
         }
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mp.start();
+        // get time
+        startTime = mp.getCurrentPosition();
+        finalTime = mp.getDuration();
+
+        // send time for fragment
+
+
+        handler.postDelayed(runnable, 1000);
+        isPlaying = true;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        nextMusic();
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        return false;
+    }
+
+    private void playMusic(Song song) {
+        media.reset();
+        //get id
+        currentSong = song.getId();
+        //set Uri
+        Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);
+        //setting this uri as data source
+        try {
+            media.setDataSource(getApplicationContext(), trackUri);
+        } catch (IOException e) {
+            Log.e("MUSIC SERVICE", "Error setting data source", e);
+        }
+        //complete the play song
+        media.prepareAsync();
+    }
+
+    private void pauseMusic() {
+        media.pause();
+        isPlaying = false;
+    }
+
+    private void nextMusic() {
+        if (positionSong == songs.size() - 1) {
+            positionSong = 0;
+        } else {
+            positionSong++;
+        }
+        Song song = songs.get(positionSong);
+        playMusic(song);
+    }
+
+    private void prevMusic() {
+        if (positionSong == 0) {
+            positionSong = songs.size() - 1;
+        } else {
+            positionSong--;
+        }
+        Song song = songs.get(positionSong);
+        playMusic(song);
     }
 
     // send notification for start music
@@ -160,6 +248,21 @@ public class MyMusicOfflineService extends Service {
     // init for songs of service
     private void getAllMedia() {
         new GetAllMusicThread(MyMusicOfflineService.this, this.songs).start();
+    }
+
+    // init media player
+    private void initMediaPlayer() {
+        media = new MediaPlayer();
+        currentSong = -1;
+
+        // setting some properties
+        media.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        media.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        // set the class as listener
+        media.setOnPreparedListener(this);
+        media.setOnCompletionListener(this);
+        media.setOnErrorListener(this);
     }
 
     @Override

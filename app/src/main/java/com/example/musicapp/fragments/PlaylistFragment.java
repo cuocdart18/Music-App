@@ -1,16 +1,16 @@
 package com.example.musicapp.fragments;
 
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_LOOP;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_NEXT;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_PAUSE;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_PREV;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_RESUME;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_SHUFFLE;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_START;
-import static com.example.musicapp.service.MyMusicOfflineService.ACTION_STOP;
-import static com.example.musicapp.service.MyMusicOfflineService.KEY_RECEIVE_ACTION;
-import static com.example.musicapp.service.MyMusicOfflineService.KEY_SEND_ACTION;
-import static com.example.musicapp.service.MyMusicOfflineService.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.ACTION_LOOP;
+import static com.example.musicapp.AppUtils.ACTION_NEXT;
+import static com.example.musicapp.AppUtils.ACTION_PAUSE;
+import static com.example.musicapp.AppUtils.ACTION_PREV;
+import static com.example.musicapp.AppUtils.ACTION_RESUME;
+import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
+import static com.example.musicapp.AppUtils.ACTION_START;
+import static com.example.musicapp.AppUtils.ACTION_STOP;
+import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
+import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
+import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

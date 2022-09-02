@@ -18,6 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppUtils {
+    public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
+
+    public static final String KEY_SEND_ACTION = "send_action";
+    public static final String KEY_RECEIVE_ACTION = "receive_action";
+
+    public static final int ACTION_PAUSE = 1001;
+    public static final int ACTION_RESUME = 1002;
+    public static final int ACTION_NEXT = 1003;
+    public static final int ACTION_PREV = 1004;
+    public static final int ACTION_STOP = 1005;
+    public static final int ACTION_START = 1006;
+    public static final int ACTION_SHUFFLE = 1007;
+    public static final int ACTION_LOOP = 1008;
+
     private static AppUtils instance;
     private Context context;
 
