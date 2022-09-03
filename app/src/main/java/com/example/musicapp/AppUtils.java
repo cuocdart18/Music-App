@@ -30,6 +30,7 @@ public class AppUtils {
     public static final String PROGRESS = "progress";
     public static final String POSITION = "position";
     public static final String STATUS_PLAYING = "is_playing";
+    public static final String STATUS_LOOPING = "is_looping";
     public static final String OBJ_SONG = "obj_song";
     public static final String ACTION_MUSIC = "action_music_to_activity";
 

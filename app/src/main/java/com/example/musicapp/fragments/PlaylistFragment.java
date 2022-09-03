@@ -17,6 +17,7 @@ import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
 
 import android.content.BroadcastReceiver;
@@ -63,6 +64,7 @@ public class PlaylistFragment extends Fragment
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
     private Song currentObjSong;
+    private boolean isServiceDestroyed = true;
 
     // live data
     public ObservableField<String> titleCurrentMusic = new ObservableField<>();
@@ -111,9 +113,7 @@ public class PlaylistFragment extends Fragment
         initDataInRecycler(); // call data song from device
 
         // call service and send list song
-        Intent intentCallService = new Intent(getContext(), MyMusicOfflineService.class);
-        intentCallService.putExtra(SEND_LIST_SONG, (Serializable) songs);
-        getContext().startService(intentCallService);
+        callService();
 
         // init data simple
         titleCurrentMusic.set(DEFAULT_TITLE);
@@ -140,8 +140,10 @@ public class PlaylistFragment extends Fragment
 
         switch (action) {
             case ACTION_PAUSE:
+                handleActionPauseFromService(bundle);
                 break;
             case ACTION_RESUME:
+                handleActionResumeFromService(bundle);
                 break;
             case ACTION_NEXT:
                 handleActionNextFromService(bundle);
@@ -158,6 +160,7 @@ public class PlaylistFragment extends Fragment
             case ACTION_SHUFFLE:
                 break;
             case ACTION_LOOP:
+                handleActionLoopFromService(bundle);
                 break;
             case ACTION_SEEK:
                 break;
@@ -166,6 +169,18 @@ public class PlaylistFragment extends Fragment
 
     private void handleActionStartFromService(Bundle bundle) {
         currentObjSong = (Song) bundle.get(OBJ_SONG);
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
+    }
+
+    private void handleActionResumeFromService(Bundle bundle) {
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
+    }
+
+    private void handleActionPauseFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         titleCurrentMusic.set(currentObjSong.getTitle());
@@ -185,12 +200,21 @@ public class PlaylistFragment extends Fragment
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
+    private void handleActionLoopFromService(Bundle bundle) {
+        currentObjSong = (Song) bundle.get(OBJ_SONG);
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        isLooping.set(bundle.getBoolean(STATUS_LOOPING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
+    }
+
     private void handleActionStopFromService() {
         currentObjSong = null;
         // set UI
         isPlaying.set(false);
         isShuffling.set(false);
         isLooping.set(false);
+        isServiceDestroyed = true;
         titleCurrentMusic.set(DEFAULT_TITLE);
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
@@ -198,7 +222,9 @@ public class PlaylistFragment extends Fragment
 
     @Override
     public void onClickItemInRecycler(Song song) {
-        Toast.makeText(getContext(), "play music " + song.getPosInList(), Toast.LENGTH_SHORT).show();
+        // if service destroyed, call a new service
+        callService();
+
         sendPositionToMusicService(ACTION_START, song.getPosInList());
     }
 
@@ -208,17 +234,14 @@ public class PlaylistFragment extends Fragment
     }
 
     public void onClickShuffle() {
-        Toast.makeText(getContext(), "shuffle", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_SHUFFLE);
     }
 
     public void onClickSkipPrev() {
-        Toast.makeText(getContext(), "prev", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_PREV);
     }
 
     public void onClickPlayPause() {
-        Toast.makeText(getContext(), "play pause", Toast.LENGTH_SHORT).show();
         if (Boolean.TRUE.equals(isPlaying.get())) {
             sendActionToMusicService(ACTION_PAUSE);
         } else {
@@ -227,12 +250,10 @@ public class PlaylistFragment extends Fragment
     }
 
     public void onClickSkipNext() {
-        Toast.makeText(getContext(), "next", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_NEXT);
     }
 
     public void onClickLoop() {
-        Toast.makeText(getContext(), "loop", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_LOOP);
     }
 
@@ -304,6 +325,16 @@ public class PlaylistFragment extends Fragment
     private void initConfigSwipeRefreshLayout() {
         binding.refreshListMusicLayout.setOnRefreshListener(this::onRefresh);
         binding.refreshListMusicLayout.setColorSchemeColors(getResources().getColor(R.color.teal_700));
+    }
+
+    // call service if destroyed
+    private void callService() {
+        if (isServiceDestroyed) {
+            Intent intentCallService = new Intent(getContext(), MyMusicOfflineService.class);
+            intentCallService.putExtra(SEND_LIST_SONG, (Serializable) songs);
+            getContext().startService(intentCallService);
+            isServiceDestroyed = false;
+        }
     }
 
     @Override
