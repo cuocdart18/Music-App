@@ -36,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.ObservableField;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -177,13 +178,13 @@ public class PlaylistFragment extends Fragment
     private void handleActionResumeFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        titleCurrentMusic.set(currentObjSong.getTitle());
+//        titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
     private void handleActionPauseFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        titleCurrentMusic.set(currentObjSong.getTitle());
+//        titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
     private void handleActionNextFromService(Bundle bundle) {

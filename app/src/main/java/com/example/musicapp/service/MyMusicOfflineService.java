@@ -38,6 +38,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.musicapp.AppUtils;
@@ -52,7 +53,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
+public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
     private long currentSong = -1;
     private int positionSong = -1;
 
@@ -215,7 +217,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         // send time for fragment
 
 
-//        handler.postDelayed(runnable, 1000);
+        // handler.postDelayed(runnable, 1000);
         isPlaying = true;
         // update notification
         sendNotificationMediaStyle();

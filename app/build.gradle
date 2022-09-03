@@ -45,4 +45,12 @@ dependencies {
 
     implementation "androidx.media:media:1.6.0"
     implementation "androidx.core:core:1.8.0"
+
+    def lifecycle_version = "2.6.0-alpha01"
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+    // Lifecycles only (without ViewModel or LiveData)
+    implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
 }

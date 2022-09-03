@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapp.AppUtils;
+import com.example.musicapp.R;
 import com.example.musicapp.databinding.ActivityMainBinding;
 import com.example.musicapp.models.Song;
 import com.google.gson.Gson;
@@ -73,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
     private void showAlertDialogNotifyEncrypt() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
 
-        b.setTitle("Warning");
-        b.setMessage("All the songs are owned by Zing mp3 are encrypted, this app can't be read!");
+        b.setTitle(getResources().getString(R.string.title_warning));
+        b.setMessage(getResources().getString(R.string.message_warning));
 
         b.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
             @Override

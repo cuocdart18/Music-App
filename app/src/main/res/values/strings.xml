@@ -10,4 +10,7 @@
 
     <string name="channel_name">play_music</string>
     <string name="channel_description">description</string>
+
+    <string name="title_warning">Warning</string>
+    <string name="message_warning">All the songs are owned by Zing mp3 are encrypted, this app can\'t be read!</string>
 </resources>
