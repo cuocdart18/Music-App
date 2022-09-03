@@ -1,6 +1,7 @@
 package com.example.musicapp.service;
 
 import static com.example.musicapp.AppUtils.ACTION_LOOP;
+import static com.example.musicapp.AppUtils.ACTION_MUSIC;
 import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
@@ -11,7 +12,11 @@ import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
+import static com.example.musicapp.AppUtils.OBJ_SONG;
+import static com.example.musicapp.AppUtils.POSITION;
+import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.STATUS_PLAYING;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -54,7 +59,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private boolean isPlaying;
     private boolean isLoop;
 
-    private Song song;
+    private Song currentObjSong;
     private List<Song> songs;
     private MediaPlayer media;
     private NotificationCompat.Builder notiBuilder;
@@ -78,14 +83,20 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     @Override
     public void onCreate() {
         super.onCreate();
-        // read all media file by worker thread
-        getAllMedia();
+        /*// read all media file by worker thread
+        getAllMedia();*/
+
         // init media
         initMediaPlayer();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // receive songs by context
+        if (this.songs == null) {
+            this.songs = (List<Song>) intent.getSerializableExtra(SEND_LIST_SONG);
+        }
+
         Bundle bundle = intent.getExtras();
         if (bundle != null) {
 
@@ -108,8 +119,10 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             case ACTION_PREV:
                 break;
             case ACTION_STOP:
+                handleActionStop(intent);
                 break;
             case ACTION_START:
+                hanleActionStart(intent);
                 break;
             case ACTION_SHUFFLE:
                 break;
@@ -118,6 +131,18 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             case ACTION_SEEK:
                 break;
         }
+    }
+
+    private void hanleActionStart(Intent intent) {
+        Bundle bundle = intent.getExtras();
+        positionSong = bundle.getInt(POSITION, 0);
+        currentObjSong = songs.get(positionSong);
+        playMusic(currentObjSong);
+    }
+
+    private void handleActionStop(Intent intent) {
+        stopSelf();
+        sendActionToActivity(ACTION_STOP);
     }
 
     @Override
@@ -132,6 +157,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
         handler.postDelayed(runnable, 1000);
         isPlaying = true;
+        // update notification
+        sendNotificationMediaStyle();
     }
 
     @Override
@@ -147,10 +174,10 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         return false;
     }
 
-    private void playMusic(Song song) {
+    private void playMusic(Song currentObjSong) {
         media.reset();
         //get id
-        currentSong = song.getId();
+        currentSong = currentObjSong.getId();
         //set Uri
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);
         //setting this uri as data source
@@ -196,7 +223,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         //TODO: tim hieu them ve MediaSessionCompat
         MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(this, "tag");
 
-        if (song != null) {
+        if (currentObjSong != null) {
             notiBuilder = new NotificationCompat.Builder(this, MyApplication.CHANNEL_ID)
                     // Show controls on lock screen even when user hides sensitive content
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -204,9 +231,9 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                     .setSmallIcon(R.drawable.ic_audio_file)
                     .setSound(null)
                     .setContentIntent(pendingIntent)
-                    .setSubText(song.getTitle())
-                    .setContentTitle(song.getTitle())
-                    .setContentText(song.getSinger());
+                    .setSubText(currentObjSong.getTitle())
+                    .setContentTitle(currentObjSong.getTitle())
+                    .setContentText(currentObjSong.getSinger());
         }
 
         if (isPlaying) {
@@ -214,7 +241,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                     .clearActions()
                     // Add media control buttons that invoke intents in your media service
                     .addAction(R.drawable.ic_skip_previous_24, "Previous", getPendingIntent(this, ACTION_PREV))
-                    .addAction(R.drawable.ic_play_arrow_24, "Pause", getPendingIntent(this, ACTION_PAUSE))
+                    .addAction(R.drawable.ic_pause_24, "Pause", getPendingIntent(this, ACTION_PAUSE))
                     .addAction(R.drawable.ic_skip_next_24, "Next", getPendingIntent(this, ACTION_NEXT))
                     .addAction(R.drawable.ic_stop_24, "Stop", getPendingIntent(this, ACTION_STOP));
         } else {
@@ -222,7 +249,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                     .clearActions()
                     // Add media control buttons that invoke intents in your media service
                     .addAction(R.drawable.ic_skip_previous_24, "Previous", getPendingIntent(this, ACTION_PREV))
-                    .addAction(R.drawable.ic_pause_24, "Play", getPendingIntent(this, ACTION_RESUME))
+                    .addAction(R.drawable.ic_play_arrow_24, "Play", getPendingIntent(this, ACTION_RESUME))
                     .addAction(R.drawable.ic_skip_next_24, "Next", getPendingIntent(this, ACTION_NEXT))
                     .addAction(R.drawable.ic_stop_24, "Stop", getPendingIntent(this, ACTION_STOP));
         }
@@ -243,10 +270,15 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         return PendingIntent.getBroadcast(context.getApplicationContext(), action, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    // send action to fragment
-    private void sendActionToFragment(int action) {
+    // send action to activity
+    private void sendActionToActivity(int action) {
         Intent intentSend = new Intent(SEND_TO_ACTIVITY);
         // put data, something
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(OBJ_SONG, currentObjSong);
+        bundle.putBoolean(STATUS_PLAYING, isPlaying);
+        bundle.putInt(KEY_SEND_ACTION, action);
+        intentSend.putExtras(bundle);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
     }

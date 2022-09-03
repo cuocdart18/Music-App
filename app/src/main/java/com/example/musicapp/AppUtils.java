@@ -19,11 +19,19 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class AppUtils {
+    public static final String DEFAULT_TITLE = "No music is playing";
+    // for intent
     public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
-    public static final String PROGRESS = "progress";
-
     public static final String KEY_SEND_ACTION = "send_action";
     public static final String KEY_RECEIVE_ACTION = "receive_action";
+    public static final String SEND_LIST_SONG = "send_list_song";
+
+    // for bundle
+    public static final String PROGRESS = "progress";
+    public static final String POSITION = "position";
+    public static final String STATUS_PLAYING = "is_playing";
+    public static final String OBJ_SONG = "obj_song";
+    public static final String ACTION_MUSIC = "action_music_to_activity";
 
     public static final int ACTION_PAUSE = 1001;
     public static final int ACTION_RESUME = 1002;
@@ -75,6 +83,7 @@ public class AppUtils {
 
     public List<Song> getAllMediaMp3Files() {
         List<Song> songs = new ArrayList<>();
+        int posInList = 0;
 
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -94,7 +103,8 @@ public class AppUtils {
                 long thisId = cursor.getLong(idColumn);
                 String thisTitle = cursor.getString(titleColumn);
                 String thisArtist = cursor.getString(artistColumn);
-                songs.add(new Song(thisId, thisTitle, thisArtist));
+                songs.add(new Song(thisId, thisTitle, thisArtist, posInList));
+                posInList++;
             } while (cursor.moveToNext());
         }
         return songs;

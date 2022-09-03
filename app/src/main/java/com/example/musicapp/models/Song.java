@@ -7,11 +7,15 @@ public class Song implements Serializable {
     private String title;
     private String singer;
     private boolean isPlaying;
+    private int posInList;
+    private double startTime = 0;
+    private double finalTime = 0;
 
-    public Song(long id, String title, String singer) {
+    public Song(long id, String title, String singer, int posInList) {
         this.id = id;
         this.title = title;
         this.singer = singer;
+        this.posInList = posInList;
     }
 
     public long getId() {
@@ -44,5 +48,29 @@ public class Song implements Serializable {
 
     public void setPlaying(boolean playing) {
         isPlaying = playing;
+    }
+
+    public int getPosInList() {
+        return posInList;
+    }
+
+    public void setPosInList(int posInList) {
+        this.posInList = posInList;
+    }
+
+    public double getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(double startTime) {
+        this.startTime = startTime;
+    }
+
+    public double getFinalTime() {
+        return finalTime;
+    }
+
+    public void setFinalTime(double finalTime) {
+        this.finalTime = finalTime;
     }
 }

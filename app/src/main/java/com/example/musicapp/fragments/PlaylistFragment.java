@@ -9,10 +9,15 @@ import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
+import static com.example.musicapp.AppUtils.DEFAULT_TITLE;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
+import static com.example.musicapp.AppUtils.OBJ_SONG;
+import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
+import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.STATUS_PLAYING;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -46,6 +51,7 @@ import com.example.musicapp.databinding.FragmentPlaylistOfflineModeBinding;
 import com.example.musicapp.models.Song;
 import com.example.musicapp.service.MyMusicOfflineService;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class PlaylistFragment extends Fragment
@@ -56,6 +62,7 @@ public class PlaylistFragment extends Fragment
 
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
+    private Song currentObjSong;
 
     // live data
     public ObservableField<String> titleCurrentMusic = new ObservableField<>();
@@ -67,7 +74,6 @@ public class PlaylistFragment extends Fragment
     public ObservableField<Integer> progressPlay = new ObservableField<>();
     public double startTime = 0;
     public double finalTime = 0;
-
 
     // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -94,10 +100,6 @@ public class PlaylistFragment extends Fragment
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver,
                 new IntentFilter(SEND_TO_ACTIVITY));
 
-        // call service
-        Intent intentCallService = new Intent(getContext(), MyMusicOfflineService.class);
-        getContext().startService(intentCallService);
-
         return binding.getRoot();
     }
 
@@ -106,10 +108,15 @@ public class PlaylistFragment extends Fragment
         super.onViewCreated(view, savedInstanceState);
         // init template
         initConfigSwipeRefreshLayout();
-        initDataInRecycler();
+        initDataInRecycler(); // call data song from device
+
+        // call service and send list song
+        Intent intentCallService = new Intent(getContext(), MyMusicOfflineService.class);
+        intentCallService.putExtra(SEND_LIST_SONG, (Serializable) songs);
+        getContext().startService(intentCallService);
 
         // init data simple
-        titleCurrentMusic.set("No music is playing");
+        titleCurrentMusic.set(DEFAULT_TITLE);
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
         // set on click seekbar
@@ -141,8 +148,10 @@ public class PlaylistFragment extends Fragment
             case ACTION_PREV:
                 break;
             case ACTION_STOP:
+                handleActionStopFromService();
                 break;
             case ACTION_START:
+                handleActionStartFromService(bundle);
                 break;
             case ACTION_SHUFFLE:
                 break;
@@ -153,10 +162,29 @@ public class PlaylistFragment extends Fragment
         }
     }
 
+    private void handleActionStartFromService(Bundle bundle) {
+        currentObjSong = (Song) bundle.get(OBJ_SONG);
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
+
+    }
+
+    private void handleActionStopFromService() {
+        currentObjSong = null;
+        // set UI
+        isPlaying.set(false);
+        isShuffling.set(false);
+        isLooping.set(false);
+        titleCurrentMusic.set(DEFAULT_TITLE);
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
+        finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
+    }
+
     @Override
     public void onClickItemInRecycler(Song song) {
-        Toast.makeText(getContext(), "play music", Toast.LENGTH_SHORT).show();
-        sendActionToMusicService(ACTION_START);
+        Toast.makeText(getContext(), "play music " + song.getPosInList(), Toast.LENGTH_SHORT).show();
+        sendPositionToMusicService(ACTION_START, song.getPosInList());
     }
 
     @Override
@@ -212,17 +240,28 @@ public class PlaylistFragment extends Fragment
         });
     }
 
-    // send action to service
+    // send action to service by start (go to startCommand)
     private void sendActionToMusicService(int action) {
         Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
         intentToService.putExtra(KEY_RECEIVE_ACTION, action);
         getContext().startService(intentToService);
     }
 
+    // update progress by start (go to startCommand)
     private void sendActionToMusicService(int action, int progress) {
         Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
         Bundle bundle = new Bundle();
         bundle.putInt(PROGRESS, progress);
+        intentToService.putExtras(bundle);
+        intentToService.putExtra(KEY_RECEIVE_ACTION, action);
+        getContext().startService(intentToService);
+    }
+
+    // send position of song to service by start (go to startCommand)
+    private void sendPositionToMusicService(int action, int position) {
+        Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt(POSITION, position);
         intentToService.putExtras(bundle);
         intentToService.putExtra(KEY_RECEIVE_ACTION, action);
         getContext().startService(intentToService);
