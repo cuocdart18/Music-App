@@ -16,9 +16,11 @@ import com.example.musicapp.models.Song;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AppUtils {
     public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
+    public static final String PROGRESS = "progress";
 
     public static final String KEY_SEND_ACTION = "send_action";
     public static final String KEY_RECEIVE_ACTION = "receive_action";
@@ -31,6 +33,7 @@ public class AppUtils {
     public static final int ACTION_START = 1006;
     public static final int ACTION_SHUFFLE = 1007;
     public static final int ACTION_LOOP = 1008;
+    public static final int ACTION_SEEK = 1009;
 
     private static AppUtils instance;
     private Context context;
@@ -94,8 +97,14 @@ public class AppUtils {
                 songs.add(new Song(thisId, thisTitle, thisArtist));
             } while (cursor.moveToNext());
         }
-
         return songs;
     }
 
+    public String formatTime(double time) {
+        String timeFormat = String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes((long) time),
+                TimeUnit.MILLISECONDS.toSeconds((long) time) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) time)));
+        return timeFormat;
+    }
 }

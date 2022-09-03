@@ -5,11 +5,13 @@ import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
 import static com.example.musicapp.AppUtils.ACTION_RESUME;
+import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
+import static com.example.musicapp.AppUtils.PROGRESS;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
 
 import android.content.BroadcastReceiver;
@@ -21,10 +23,12 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.ObservableField;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -52,9 +56,18 @@ public class PlaylistFragment extends Fragment
 
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
-    public boolean isPlaying;
-    public boolean isShuffling;
-    public boolean isLooping;
+
+    // live data
+    public ObservableField<String> titleCurrentMusic = new ObservableField<>();
+    public ObservableField<Boolean> isPlaying = new ObservableField<>();
+    public ObservableField<Boolean> isShuffling = new ObservableField<>();
+    public ObservableField<Boolean> isLooping = new ObservableField<>();
+    public ObservableField<String> startTimeText = new ObservableField<>();
+    public ObservableField<String> finalTimeText = new ObservableField<>();
+    public ObservableField<Integer> progressPlay = new ObservableField<>();
+    public double startTime = 0;
+    public double finalTime = 0;
+
 
     // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -94,6 +107,13 @@ public class PlaylistFragment extends Fragment
         // init template
         initConfigSwipeRefreshLayout();
         initDataInRecycler();
+
+        // init data simple
+        titleCurrentMusic.set("No music is playing");
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
+        finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
+        // set on click seekbar
+        onClickSeekBarChangeListener();
     }
 
     @Override
@@ -128,6 +148,8 @@ public class PlaylistFragment extends Fragment
                 break;
             case ACTION_LOOP:
                 break;
+            case ACTION_SEEK:
+                break;
         }
     }
 
@@ -154,7 +176,7 @@ public class PlaylistFragment extends Fragment
 
     public void onClickPlayPause() {
         Toast.makeText(getContext(), "play pause", Toast.LENGTH_SHORT).show();
-        if (isPlaying) {
+        if (Boolean.TRUE.equals(isPlaying.get())) {
             sendActionToMusicService(ACTION_PAUSE);
         } else {
             sendActionToMusicService(ACTION_RESUME);
@@ -171,9 +193,37 @@ public class PlaylistFragment extends Fragment
         sendActionToMusicService(ACTION_LOOP);
     }
 
+    private void onClickSeekBarChangeListener() {
+        bindingActivity.layoutMusicController.sbMusicTimeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
     // send action to service
     private void sendActionToMusicService(int action) {
         Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
+        intentToService.putExtra(KEY_RECEIVE_ACTION, action);
+        getContext().startService(intentToService);
+    }
+
+    private void sendActionToMusicService(int action, int progress) {
+        Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt(PROGRESS, progress);
+        intentToService.putExtras(bundle);
         intentToService.putExtra(KEY_RECEIVE_ACTION, action);
         getContext().startService(intentToService);
     }

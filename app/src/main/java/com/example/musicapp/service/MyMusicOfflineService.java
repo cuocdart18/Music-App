@@ -5,6 +5,7 @@ import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
 import static com.example.musicapp.AppUtils.ACTION_RESUME;
+import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
@@ -113,6 +114,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             case ACTION_SHUFFLE:
                 break;
             case ACTION_LOOP:
+                break;
+            case ACTION_SEEK:
                 break;
         }
     }

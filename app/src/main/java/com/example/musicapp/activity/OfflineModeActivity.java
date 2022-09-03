@@ -1,13 +1,11 @@
 package com.example.musicapp.activity;
 
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.musicapp.adapter.ICallbackPlaylistFragment;
 import com.example.musicapp.adapter.ViewPager2ListSongAdapter;
 import com.example.musicapp.databinding.ActivityOfflineModeBinding;
 import com.google.android.material.tabs.TabLayout;
