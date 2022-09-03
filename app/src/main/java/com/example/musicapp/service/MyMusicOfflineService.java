@@ -1,5 +1,6 @@
 package com.example.musicapp.service;
 
+import static com.example.musicapp.AppUtils.ACTION_INIT_UI;
 import static com.example.musicapp.AppUtils.ACTION_LOOP;
 import static com.example.musicapp.AppUtils.ACTION_MUSIC;
 import static com.example.musicapp.AppUtils.ACTION_NEXT;
@@ -144,7 +145,16 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                 break;
             case ACTION_SEEK:
                 break;
+            case ACTION_INIT_UI:
+                handleActionInitUi(intent);
+                break;
         }
+    }
+
+    private void handleActionInitUi(Intent intent) {
+        if (positionSong == -1)
+            return;
+        sendActionToActivity(ACTION_INIT_UI);
     }
 
     private void hanleActionStart(Intent intent) {

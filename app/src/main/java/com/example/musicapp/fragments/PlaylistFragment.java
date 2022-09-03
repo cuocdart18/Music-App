@@ -1,5 +1,6 @@
 package com.example.musicapp.fragments;
 
+import static com.example.musicapp.AppUtils.ACTION_INIT_UI;
 import static com.example.musicapp.AppUtils.ACTION_LOOP;
 import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
@@ -109,9 +110,12 @@ public class PlaylistFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         // init template
         initConfigSwipeRefreshLayout();
         initDataInRecycler(); // call data song from device
+        // set on click seekbar
+        onClickSeekBarChangeListener();
 
         // call service and send list song
         callService();
@@ -120,8 +124,9 @@ public class PlaylistFragment extends Fragment
         titleCurrentMusic.set(DEFAULT_TITLE);
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
-        // set on click seekbar
-        onClickSeekBarChangeListener();
+
+        // request to service -> set ui if service is playing music
+        sendActionToMusicService(ACTION_INIT_UI);
     }
 
     @Override
@@ -165,7 +170,18 @@ public class PlaylistFragment extends Fragment
                 break;
             case ACTION_SEEK:
                 break;
+            case ACTION_INIT_UI:
+                handleActionInitUiFromService(bundle);
+                break;
         }
+    }
+
+    private void handleActionInitUiFromService(Bundle bundle) {
+        currentObjSong = (Song) bundle.get(OBJ_SONG);
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        isLooping.set(bundle.getBoolean(STATUS_LOOPING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
     private void handleActionStartFromService(Bundle bundle) {
