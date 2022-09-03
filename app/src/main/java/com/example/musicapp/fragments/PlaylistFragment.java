@@ -144,8 +144,10 @@ public class PlaylistFragment extends Fragment
             case ACTION_RESUME:
                 break;
             case ACTION_NEXT:
+                handleActionNextFromService(bundle);
                 break;
             case ACTION_PREV:
+                handleActionPrevFromService(bundle);
                 break;
             case ACTION_STOP:
                 handleActionStopFromService();
@@ -163,6 +165,20 @@ public class PlaylistFragment extends Fragment
     }
 
     private void handleActionStartFromService(Bundle bundle) {
+        currentObjSong = (Song) bundle.get(OBJ_SONG);
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
+    }
+
+    private void handleActionNextFromService(Bundle bundle) {
+        currentObjSong = (Song) bundle.get(OBJ_SONG);
+        // set UI
+        isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        titleCurrentMusic.set(currentObjSong.getTitle());
+    }
+
+    private void handleActionPrevFromService(Bundle bundle) {
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
