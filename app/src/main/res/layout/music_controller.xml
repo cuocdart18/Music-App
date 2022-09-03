@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:onClick="@{()->playlistFragment.onClickPlayPause()}"
-                android:src="@{!playlistFragment.isPlaying ? @drawable/ic_play_arrow : @drawable/ic_pause}" />
+                android:src="@{playlistFragment.isPlaying ? @drawable/ic_pause : @drawable/ic_play_arrow}" />
 
             <ImageView
                 android:id="@+id/imv_skip_next"

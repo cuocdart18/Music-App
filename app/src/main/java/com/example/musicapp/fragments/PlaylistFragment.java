@@ -167,7 +167,6 @@ public class PlaylistFragment extends Fragment
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         titleCurrentMusic.set(currentObjSong.getTitle());
-
     }
 
     private void handleActionStopFromService() {

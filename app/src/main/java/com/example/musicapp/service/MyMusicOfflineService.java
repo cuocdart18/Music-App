@@ -69,8 +69,10 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            startTime = media.getCurrentPosition();
-            handler.postDelayed(runnable, 1000);
+            if (isPlaying) {
+                startTime = media.getCurrentPosition();
+                handler.postDelayed(runnable, 1000);
+            }
         }
     };
 
@@ -159,6 +161,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         isPlaying = true;
         // update notification
         sendNotificationMediaStyle();
+        // update activity
+        sendActionToActivity(ACTION_START);
     }
 
     @Override
