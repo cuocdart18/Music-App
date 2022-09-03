@@ -2,12 +2,10 @@ package com.example.musicapp.service;
 
 import static com.example.musicapp.AppUtils.ACTION_INIT_UI;
 import static com.example.musicapp.AppUtils.ACTION_LOOP;
-import static com.example.musicapp.AppUtils.ACTION_MUSIC;
 import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
 import static com.example.musicapp.AppUtils.ACTION_RESUME;
-import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
@@ -17,6 +15,7 @@ import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
 import static com.example.musicapp.AppUtils.POSITION;
+import static com.example.musicapp.AppUtils.PROGRESS;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.START_TIME;
@@ -42,10 +41,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
 import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.application.MyApplication;
@@ -54,7 +51,6 @@ import com.example.musicapp.models.Song;
 import com.example.musicapp.thread.GetAllMusicThread;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 
 public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener,
@@ -148,6 +144,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                 handleActionLoop(intent);
                 break;
             case ACTION_UPDATE_TIME:
+//                handleActionUpdateTime(intent);
                 break;
             case ACTION_INIT_UI:
                 handleActionInitUi(intent);
@@ -209,6 +206,14 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         sendActionToActivity(action);
     }
 
+    private void handleActionUpdateTime(Intent intent) {
+        if (media != null) {
+            Bundle bundle = intent.getExtras();
+            media.seekTo(bundle.getInt(PROGRESS));
+            sendActionToActivity(action);
+        }
+    }
+
     private void handleActionStop(Intent intent) {
         stopSelf();
         sendActionToActivity(action);
@@ -234,6 +239,10 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        if (media == null) {
+            return;
+        }
+
         if (isLooping) {
             mp.start();
         } else {
@@ -266,10 +275,12 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     }
 
     private void pauseMusic() {
-        media.pause();
-        isPlaying = false;
-        sendNotificationMediaStyle();
-        sendActionToActivity(action);
+        if (isPlaying && media != null) {
+            media.pause();
+            isPlaying = false;
+            sendNotificationMediaStyle();
+            sendActionToActivity(action);
+        }
     }
 
     private void resumeMusic() {

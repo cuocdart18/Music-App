@@ -172,7 +172,7 @@ public class PlaylistFragment extends Fragment
                 handleActionInitUiFromService(bundle);
                 break;
             case ACTION_UPDATE_TIME:
-                handleActionUpdateStartTimeFromService(bundle);
+//                handleActionUpdateStartTimeFromService(bundle);
                 break;
         }
     }
@@ -184,6 +184,7 @@ public class PlaylistFragment extends Fragment
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
+        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -193,6 +194,7 @@ public class PlaylistFragment extends Fragment
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
 //        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
+        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -214,6 +216,7 @@ public class PlaylistFragment extends Fragment
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
 //        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
+        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -223,6 +226,7 @@ public class PlaylistFragment extends Fragment
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
 //        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
+        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
