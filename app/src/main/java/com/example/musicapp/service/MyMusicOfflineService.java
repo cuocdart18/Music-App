@@ -11,12 +11,14 @@ import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
+import static com.example.musicapp.AppUtils.FINAL_TIME;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
 import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
 
@@ -58,6 +60,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
     private long currentSong = -1;
     private int positionSong = -1;
+    private int action = 0;
 
     private double startTime = 0;
     private double finalTime = 0;
@@ -65,7 +68,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private boolean isPlaying;
     private boolean isLooping;
     private boolean isShuffling;
-    private boolean isFirstStart;
 
     private Song currentObjSong;
     private List<Song> songs;
@@ -117,7 +119,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     }
 
     private void handleActionFromBroadcast(Intent intent) {
-        int action = intent.getIntExtra(KEY_RECEIVE_ACTION, 0);
+        action = intent.getIntExtra(KEY_RECEIVE_ACTION, 0);
 
         switch (action) {
             case ACTION_PAUSE:
@@ -154,18 +156,15 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private void handleActionInitUi(Intent intent) {
         if (positionSong == -1)
             return;
-        sendActionToActivity(ACTION_INIT_UI);
+        sendActionToActivity(action);
     }
 
     private void hanleActionStart(Intent intent) {
         Bundle bundle = intent.getExtras();
         positionSong = bundle.getInt(POSITION, 0);
         currentObjSong = songs.get(positionSong);
-        isFirstStart = true;
 
         playMusic(currentObjSong);
-        isPlaying = true;
-        sendActionToActivity(ACTION_START);
     }
 
     private void handleActionResume(Intent intent) {
@@ -187,8 +186,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             return;
         //
         nextMusic();
-        isPlaying = true;
-        sendActionToActivity(ACTION_NEXT);
     }
 
     private void handleActionPrev(Intent intent) {
@@ -196,8 +193,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             return;
         //
         prevMusic();
-        isPlaying = true;
-        sendActionToActivity(ACTION_PREV);
     }
 
     private void handleActionLoop(Intent intent) {
@@ -209,12 +204,12 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         } else {
             isLooping = true;
         }
-        sendActionToActivity(ACTION_LOOP);
+        sendActionToActivity(action);
     }
 
     private void handleActionStop(Intent intent) {
         stopSelf();
-        sendActionToActivity(ACTION_STOP);
+        sendActionToActivity(action);
     }
 
     @Override
@@ -229,13 +224,11 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
         // handler.postDelayed(runnable, 1000);
         isPlaying = true;
+
         // update notification
         sendNotificationMediaStyle();
-        // check first start music
-        if (isFirstStart) {
-            sendActionToActivity(ACTION_START);
-            isFirstStart = false;
-        }
+        // send response action to activity
+        sendActionToActivity(action);
     }
 
     @Override
@@ -275,7 +268,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         media.pause();
         isPlaying = false;
         sendNotificationMediaStyle();
-        sendActionToActivity(ACTION_PAUSE);
+        sendActionToActivity(action);
     }
 
     private void resumeMusic() {
@@ -283,7 +276,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             media.start();
             isPlaying = true;
             sendNotificationMediaStyle();
-            sendActionToActivity(ACTION_RESUME);
+            sendActionToActivity(action);
         }
     }
 
@@ -370,6 +363,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         bundle.putSerializable(OBJ_SONG, currentObjSong);
         bundle.putBoolean(STATUS_PLAYING, isPlaying);
         bundle.putBoolean(STATUS_LOOPING, isLooping);
+        bundle.putDouble(START_TIME, startTime);
+        bundle.putDouble(FINAL_TIME, finalTime);
         bundle.putInt(KEY_SEND_ACTION, action);
         intentSend.putExtras(bundle);
 

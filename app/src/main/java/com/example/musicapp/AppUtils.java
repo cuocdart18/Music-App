@@ -29,6 +29,8 @@ public class AppUtils {
     // for bundle
     public static final String PROGRESS = "progress";
     public static final String POSITION = "position";
+    public static final String START_TIME = "start_time";
+    public static final String FINAL_TIME = "final_time";
     public static final String STATUS_PLAYING = "is_playing";
     public static final String STATUS_LOOPING = "is_looping";
     public static final String OBJ_SONG = "obj_song";

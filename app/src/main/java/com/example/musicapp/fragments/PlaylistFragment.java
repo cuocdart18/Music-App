@@ -11,6 +11,7 @@ import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
 import static com.example.musicapp.AppUtils.DEFAULT_TITLE;
+import static com.example.musicapp.AppUtils.FINAL_TIME;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
@@ -18,6 +19,7 @@ import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
 
@@ -76,8 +78,8 @@ public class PlaylistFragment extends Fragment
     public ObservableField<String> startTimeText = new ObservableField<>();
     public ObservableField<String> finalTimeText = new ObservableField<>();
     public ObservableField<Integer> progressPlay = new ObservableField<>();
-    public double startTime = 0;
-    public double finalTime = 0;
+    private double startTime = 0;
+    private double finalTime = 0;
 
     // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -181,6 +183,8 @@ public class PlaylistFragment extends Fragment
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+        finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -188,25 +192,29 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+        finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
     private void handleActionResumeFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        titleCurrentMusic.set(currentObjSong.getTitle());
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
     }
 
     private void handleActionPauseFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        titleCurrentMusic.set(currentObjSong.getTitle());
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
     }
 
     private void handleActionNextFromService(Bundle bundle) {
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+        finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -214,6 +222,8 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+        finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -222,7 +232,6 @@ public class PlaylistFragment extends Fragment
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
-        titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
     private void handleActionStopFromService() {
@@ -242,7 +251,7 @@ public class PlaylistFragment extends Fragment
         // if service destroyed, call a new service
         callService();
 
-        sendPositionToMusicService(ACTION_START, song.getPosInList());
+        sendDataToMusicService(ACTION_START, song.getPosInList(), POSITION);
     }
 
     @Override
@@ -301,21 +310,11 @@ public class PlaylistFragment extends Fragment
         getContext().startService(intentToService);
     }
 
-    // update progress by start (go to startCommand)
-    private void sendActionToMusicService(int action, int progress) {
+    // update data by start (go to startCommand)
+    private void sendDataToMusicService(int action, int data, String KEY) {
         Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
         Bundle bundle = new Bundle();
-        bundle.putInt(PROGRESS, progress);
-        intentToService.putExtras(bundle);
-        intentToService.putExtra(KEY_RECEIVE_ACTION, action);
-        getContext().startService(intentToService);
-    }
-
-    // send position of song to service by start (go to startCommand)
-    private void sendPositionToMusicService(int action, int position) {
-        Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
-        Bundle bundle = new Bundle();
-        bundle.putInt(POSITION, position);
+        bundle.putInt(KEY, data);
         intentToService.putExtras(bundle);
         intentToService.putExtra(KEY_RECEIVE_ACTION, action);
         getContext().startService(intentToService);
