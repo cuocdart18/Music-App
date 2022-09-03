@@ -2,6 +2,7 @@ package com.example.musicapp.activity;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapp.AppUtils;
@@ -49,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
                 onClickBtnOfflineMode();
             }
         });
+
+        // init dialog notify about: songs of zing mp3 is encrypted
+        showAlertDialogNotifyEncrypt();
     }
 
     private void onClickBtnOnlineMode() {
@@ -63,6 +68,30 @@ public class MainActivity extends AppCompatActivity {
     private void onClickBtnOfflineMode() {
         // if permission granted, get all file
         multipleRequestPermission();
+    }
+
+    private void showAlertDialogNotifyEncrypt() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+
+        b.setTitle("Warning");
+        b.setMessage("All the songs are owned by Zing mp3 are encrypted, this app can't be read!");
+
+        b.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        b.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        AlertDialog ad = b.create();
+        ad.show();
     }
 
     // check permission
