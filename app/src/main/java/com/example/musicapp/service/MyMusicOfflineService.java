@@ -55,8 +55,10 @@ import java.util.List;
 public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
     private long currentSong = -1;
     private int positionSong = -1;
+
     private double startTime = 0;
     private double finalTime = 0;
+
     private boolean isPlaying;
     private boolean isLooping;
     private boolean isShuffling;
@@ -146,7 +148,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private void hanleActionStart(Intent intent) {
         Bundle bundle = intent.getExtras();
         positionSong = bundle.getInt(POSITION, 0);
-        Log.v("SERVICE", String.valueOf(songs));
         currentObjSong = songs.get(positionSong);
         isFirstStart = true;
 
@@ -228,11 +229,13 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     @Override
     public void onCompletion(MediaPlayer mp) {
         if (isLooping) {
-            playMusic(currentObjSong);
+            mp.start();
+        } else {
+            // auto next
+            nextMusic();
+            isPlaying = true;
+            sendActionToActivity(ACTION_NEXT);
         }
-        // auto next
-        nextMusic();
-        sendActionToActivity(ACTION_NEXT);
     }
 
     @Override
@@ -390,5 +393,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         }
         isPlaying = false;
         this.songs = null;
+        currentObjSong = null;
+        positionSong = -1;
+        currentSong = -1;
     }
 }
