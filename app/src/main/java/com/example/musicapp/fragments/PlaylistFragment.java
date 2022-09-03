@@ -234,6 +234,7 @@ public class PlaylistFragment extends Fragment
     }
 
     public void onClickShuffle() {
+        Toast.makeText(getContext(), "Chua code", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_SHUFFLE);
     }
 
