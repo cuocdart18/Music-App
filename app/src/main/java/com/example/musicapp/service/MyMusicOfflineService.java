@@ -11,6 +11,7 @@ import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
+import static com.example.musicapp.AppUtils.ACTION_UPDATE_TIME;
 import static com.example.musicapp.AppUtils.FINAL_TIME;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
@@ -81,6 +82,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         public void run() {
             if (isPlaying) {
                 startTime = media.getCurrentPosition();
+                updateCurrentTime(ACTION_UPDATE_TIME);
                 handler.postDelayed(runnable, 1000);
             }
         }
@@ -145,7 +147,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             case ACTION_LOOP:
                 handleActionLoop(intent);
                 break;
-            case ACTION_SEEK:
+            case ACTION_UPDATE_TIME:
                 break;
             case ACTION_INIT_UI:
                 handleActionInitUi(intent);
@@ -219,10 +221,9 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         startTime = mp.getCurrentPosition();
         finalTime = mp.getDuration();
 
-        // send time for fragment
+        // update current UI
+        handler.postDelayed(runnable, 1000);
 
-
-        // handler.postDelayed(runnable, 1000);
         isPlaying = true;
 
         // update notification
@@ -275,6 +276,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         if (media != null && !isPlaying) {
             media.start();
             isPlaying = true;
+            updateCurrentTime(ACTION_UPDATE_TIME);
             sendNotificationMediaStyle();
             sendActionToActivity(action);
         }
@@ -367,7 +369,19 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         bundle.putDouble(FINAL_TIME, finalTime);
         bundle.putInt(KEY_SEND_ACTION, action);
         intentSend.putExtras(bundle);
+        // send
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
+    }
 
+    // update current time to activity
+    private void updateCurrentTime(int action) {
+        Intent intentSend = new Intent(SEND_TO_ACTIVITY);
+        // put data, something
+        Bundle bundle = new Bundle();
+        bundle.putDouble(START_TIME, startTime);
+        bundle.putInt(KEY_SEND_ACTION, action);
+        intentSend.putExtras(bundle);
+        //send
         LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
     }
 

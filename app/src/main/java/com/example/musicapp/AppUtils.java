@@ -44,7 +44,7 @@ public class AppUtils {
     public static final int ACTION_START = 1006;
     public static final int ACTION_SHUFFLE = 1007;
     public static final int ACTION_LOOP = 1008;
-    public static final int ACTION_SEEK = 1009;
+    public static final int ACTION_UPDATE_TIME = 1009;
     public static final int ACTION_INIT_UI = 1010;
 
     private static AppUtils instance;

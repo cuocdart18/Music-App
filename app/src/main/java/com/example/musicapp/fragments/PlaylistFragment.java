@@ -6,10 +6,10 @@ import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
 import static com.example.musicapp.AppUtils.ACTION_RESUME;
-import static com.example.musicapp.AppUtils.ACTION_SEEK;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
+import static com.example.musicapp.AppUtils.ACTION_UPDATE_TIME;
 import static com.example.musicapp.AppUtils.DEFAULT_TITLE;
 import static com.example.musicapp.AppUtils.FINAL_TIME;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
@@ -39,7 +39,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.ObservableField;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,7 +48,6 @@ import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
 import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.adapter.ICallbackOnClickItem;
-import com.example.musicapp.adapter.ICallbackPlaylistFragment;
 import com.example.musicapp.adapter.ListSongRecyclerAdapter;
 import com.example.musicapp.databinding.ActivityOfflineModeBinding;
 import com.example.musicapp.databinding.FragmentPlaylistOfflineModeBinding;
@@ -170,10 +168,11 @@ public class PlaylistFragment extends Fragment
             case ACTION_LOOP:
                 handleActionLoopFromService(bundle);
                 break;
-            case ACTION_SEEK:
-                break;
             case ACTION_INIT_UI:
                 handleActionInitUiFromService(bundle);
+                break;
+            case ACTION_UPDATE_TIME:
+                handleActionUpdateStartTimeFromService(bundle);
                 break;
         }
     }
@@ -192,7 +191,7 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
@@ -200,20 +199,20 @@ public class PlaylistFragment extends Fragment
     private void handleActionResumeFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
     }
 
     private void handleActionPauseFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
     }
 
     private void handleActionNextFromService(Bundle bundle) {
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
@@ -222,7 +221,7 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
@@ -232,6 +231,11 @@ public class PlaylistFragment extends Fragment
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
+    }
+
+    private void handleActionUpdateStartTimeFromService(Bundle bundle) {
+        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+        bindingActivity.layoutMusicController.sbMusicTimeline.setProgress((int) bundle.getDouble(START_TIME));
     }
 
     private void handleActionStopFromService() {
@@ -288,12 +292,11 @@ public class PlaylistFragment extends Fragment
         bindingActivity.layoutMusicController.sbMusicTimeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+                sendDataToMusicService(ACTION_UPDATE_TIME, progress, PROGRESS);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
