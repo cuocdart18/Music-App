@@ -296,7 +296,6 @@ public class PlaylistFragment extends Fragment
         bindingActivity.layoutMusicController.sbMusicTimeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//                sendDataToMusicService(ACTION_UPDATE_TIME, progress, PROGRESS);
             }
 
             @Override
@@ -305,7 +304,7 @@ public class PlaylistFragment extends Fragment
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                sendDataToMusicService(ACTION_UPDATE_TIME, seekBar.getProgress(), PROGRESS);
             }
         });
     }

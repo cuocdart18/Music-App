@@ -143,7 +143,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                 handleActionLoop(intent);
                 break;
             case ACTION_UPDATE_TIME:
-//                handleActionUpdateTime(intent);
+                handleActionUpdateTime(intent);
                 break;
             case ACTION_INIT_UI:
                 handleActionInitUi(intent);
@@ -209,7 +209,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         if (media != null) {
             Bundle bundle = intent.getExtras();
             media.seekTo(bundle.getInt(PROGRESS));
-            sendActionToActivity(action);
+            updateCurrentTime(ACTION_UPDATE_TIME);
         }
     }
 
