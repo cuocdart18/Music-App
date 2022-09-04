@@ -60,8 +60,6 @@ import java.util.List;
 public class PlaylistFragment extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem {
     private FragmentPlaylistOfflineModeBinding binding;
-    private OfflineModeActivity offlineModeActivity;
-    private ActivityOfflineModeBinding bindingActivity;
 
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
@@ -76,8 +74,7 @@ public class PlaylistFragment extends Fragment
     public ObservableField<String> startTimeText = new ObservableField<>();
     public ObservableField<String> finalTimeText = new ObservableField<>();
     public ObservableField<Integer> progressPlay = new ObservableField<>();
-    private double startTime = 0;
-    private double finalTime = 0;
+    public ObservableField<Integer> progressMax = new ObservableField<>();
 
     // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -97,9 +94,6 @@ public class PlaylistFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaylistOfflineModeBinding.inflate(inflater, container, false);
 
-        offlineModeActivity = (OfflineModeActivity) getActivity();
-        bindingActivity = offlineModeActivity.getBinding();
-
         // regis broadcast
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver,
                 new IntentFilter(SEND_TO_ACTIVITY));
@@ -114,8 +108,6 @@ public class PlaylistFragment extends Fragment
         // init template
         initConfigSwipeRefreshLayout();
         initDataInRecycler(); // call data song from device
-        // set on click seekbar
-        onClickSeekBarChangeListener();
 
         // call service and send list song
         callService();
@@ -184,7 +176,7 @@ public class PlaylistFragment extends Fragment
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
-        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
+        progressMax.set((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -192,31 +184,27 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
-        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
+        progressMax.set((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
     private void handleActionResumeFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
     }
 
     private void handleActionPauseFromService(Bundle bundle) {
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
     }
 
     private void handleActionNextFromService(Bundle bundle) {
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
-        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
+        progressMax.set((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -224,9 +212,8 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
-//        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
-        bindingActivity.layoutMusicController.sbMusicTimeline.setMax((int) bundle.getDouble(FINAL_TIME));
+        progressMax.set((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
     }
 
@@ -239,7 +226,7 @@ public class PlaylistFragment extends Fragment
 
     private void handleActionUpdateStartTimeFromService(Bundle bundle) {
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
-        bindingActivity.layoutMusicController.sbMusicTimeline.setProgress((int) bundle.getDouble(START_TIME));
+        progressPlay.set((int) bundle.getDouble(START_TIME));
     }
 
     private void handleActionStopFromService() {
@@ -292,21 +279,9 @@ public class PlaylistFragment extends Fragment
         sendActionToMusicService(ACTION_LOOP);
     }
 
-    private void onClickSeekBarChangeListener() {
-        bindingActivity.layoutMusicController.sbMusicTimeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                sendDataToMusicService(ACTION_UPDATE_TIME, seekBar.getProgress(), PROGRESS);
-            }
-        });
+    public void onUserChangedProgressSeekbar(SeekBar seekBar) {
+        progressPlay.set(seekBar.getProgress());
+        sendDataToMusicService(ACTION_UPDATE_TIME, progressPlay.get(), PROGRESS);
     }
 
     // send action to service by start (go to startCommand)
@@ -317,7 +292,7 @@ public class PlaylistFragment extends Fragment
     }
 
     // update data by start (go to startCommand)
-    private void sendDataToMusicService(int action, int data, String KEY) {
+    public void sendDataToMusicService(int action, int data, String KEY) {
         Intent intentToService = new Intent(getContext(), MyMusicOfflineService.class);
         Bundle bundle = new Bundle();
         bundle.putInt(KEY, data);

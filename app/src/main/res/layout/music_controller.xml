@@ -5,6 +5,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.example.musicapp.AppUtils" />
+
         <variable
             name="title"
             type="String" />
@@ -46,7 +48,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@id/tv_final_time"
-                android:layout_toEndOf="@id/tv_start_time" />
+                android:layout_toEndOf="@id/tv_start_time"
+                android:max="@{playlistFragment.progressMax}"
+                android:onStopTrackingTouch="@{(seekbar) -> playlistFragment.onUserChangedProgressSeekbar(seekbar)}"
+                android:progress="@{playlistFragment.progressPlay}" />
 
             <TextView
                 android:id="@+id/tv_final_time"
@@ -71,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:onClick="@{()->playlistFragment.onClickShuffle()}"
+                android:onClick="@{() -> playlistFragment.onClickShuffle()}"
                 android:src="@{playlistFragment.isShuffling ? @drawable/ic_shuffle_on : @drawable/ic_shuffle}" />
 
             <ImageView
@@ -79,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:onClick="@{()->playlistFragment.onClickSkipPrev()}"
+                android:onClick="@{() -> playlistFragment.onClickSkipPrev()}"
                 android:src="@drawable/ic_skip_previous" />
 
             <ImageView
@@ -87,7 +92,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:onClick="@{()->playlistFragment.onClickPlayPause()}"
+                android:onClick="@{() -> playlistFragment.onClickPlayPause()}"
                 android:src="@{playlistFragment.isPlaying ? @drawable/ic_pause : @drawable/ic_play_arrow}" />
 
             <ImageView
@@ -96,14 +101,14 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:background="@drawable/ic_skip_next"
-                android:onClick="@{()->playlistFragment.onClickSkipNext()}" />
+                android:onClick="@{() -> playlistFragment.onClickSkipNext()}" />
 
             <ImageView
                 android:id="@+id/imv_loop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:onClick="@{()->playlistFragment.onClickLoop()}"
+                android:onClick="@{() -> playlistFragment.onClickLoop()}"
                 android:src="@{playlistFragment.isLooping ? @drawable/ic_repeat_on : @drawable/ic_repeat}" />
         </LinearLayout>
 

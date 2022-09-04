@@ -59,8 +59,4 @@ public class OfflineModeActivity extends AppCompatActivity {
                     }
                 }).attach();
     }
-
-    public ActivityOfflineModeBinding getBinding() {
-        return binding;
-    }
 }
