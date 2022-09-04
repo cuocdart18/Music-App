@@ -246,9 +246,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             mp.start();
         } else {
             // auto next
+            action = ACTION_NEXT;
             nextMusic();
-            /*isPlaying = true;
-            sendActionToActivity(ACTION_NEXT);*/
         }
     }
 
