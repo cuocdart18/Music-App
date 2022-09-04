@@ -76,10 +76,9 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            if (isPlaying) {
+            if (media != null) {
                 startTime = media.getCurrentPosition();
                 updateCurrentTime(ACTION_UPDATE_TIME);
-                handler.postDelayed(runnable, 1000);
             }
         }
     };
@@ -227,7 +226,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         finalTime = mp.getDuration();
 
         // update current UI
-        handler.postDelayed(runnable, 1000);
+        updateCurrentTime(ACTION_UPDATE_TIME);
 
         isPlaying = true;
 
@@ -248,8 +247,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         } else {
             // auto next
             nextMusic();
-            isPlaying = true;
-            sendActionToActivity(ACTION_NEXT);
+            /*isPlaying = true;
+            sendActionToActivity(ACTION_NEXT);*/
         }
     }
 
@@ -287,6 +286,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         if (media != null && !isPlaying) {
             media.start();
             isPlaying = true;
+            startTime = media.getCurrentPosition();
             updateCurrentTime(ACTION_UPDATE_TIME);
             sendNotificationMediaStyle();
             sendActionToActivity(action);
@@ -318,7 +318,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         Intent intentContext = new Intent(MyMusicOfflineService.this, OfflineModeActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(MyMusicOfflineService.this,
                 0, intentContext, PendingIntent.FLAG_UPDATE_CURRENT);
-        //TODO: tim hieu them ve MediaSessionCompat
         MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(this, "tag");
 
         if (currentObjSong != null) {
@@ -386,19 +385,17 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
     // update current time to activity
     private void updateCurrentTime(int action) {
-        Intent intentSend = new Intent(SEND_TO_ACTIVITY);
+        /*Intent intentSend = new Intent(SEND_TO_ACTIVITY);
         // put data, something
         Bundle bundle = new Bundle();
         bundle.putDouble(START_TIME, startTime);
         bundle.putInt(KEY_SEND_ACTION, action);
         intentSend.putExtras(bundle);
         //send
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
-    }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);*/
 
-    // init for songs of service
-    private void getAllMedia() {
-        new GetAllMusicThread(MyMusicOfflineService.this, this.songs).start();
+        sendActionToActivity(action);
+        handler.postDelayed(runnable, 1000);
     }
 
     // init media player

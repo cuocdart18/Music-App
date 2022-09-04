@@ -172,7 +172,7 @@ public class PlaylistFragment extends Fragment
                 handleActionInitUiFromService(bundle);
                 break;
             case ACTION_UPDATE_TIME:
-//                handleActionUpdateStartTimeFromService(bundle);
+                handleActionUpdateStartTimeFromService(bundle);
                 break;
         }
     }
@@ -296,7 +296,7 @@ public class PlaylistFragment extends Fragment
         bindingActivity.layoutMusicController.sbMusicTimeline.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                sendDataToMusicService(ACTION_UPDATE_TIME, progress, PROGRESS);
+//                sendDataToMusicService(ACTION_UPDATE_TIME, progress, PROGRESS);
             }
 
             @Override
