@@ -239,6 +239,8 @@ public class PlaylistFragment extends Fragment
         titleCurrentMusic.set(DEFAULT_TITLE);
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
+        progressPlay.set(0);
+        progressMax.set(0);
     }
 
     @Override
@@ -280,6 +282,9 @@ public class PlaylistFragment extends Fragment
     }
 
     public void onUserChangedProgressSeekbar(SeekBar seekBar) {
+        if (!isPlaying.get()) {
+            return;
+        }
         progressPlay.set(seekBar.getProgress());
         sendDataToMusicService(ACTION_UPDATE_TIME, progressPlay.get(), PROGRESS);
     }

@@ -1,22 +1,16 @@
-package com.example.musicapp.service;
+package com.example.musicapp.manager;
 
-import static com.example.musicapp.AppUtils.ACTION_INIT_UI;
-import static com.example.musicapp.AppUtils.ACTION_LOOP;
 import static com.example.musicapp.AppUtils.ACTION_NEXT;
 import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
 import static com.example.musicapp.AppUtils.ACTION_RESUME;
-import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
-import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
 import static com.example.musicapp.AppUtils.ACTION_UPDATE_TIME;
 import static com.example.musicapp.AppUtils.FINAL_TIME;
-import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
 import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
 import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
-import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
@@ -24,7 +18,6 @@ import static com.example.musicapp.AppUtils.STATUS_PLAYING;
 
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -33,13 +26,11 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -47,14 +38,13 @@ import com.example.musicapp.R;
 import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.application.MyApplication;
 import com.example.musicapp.broadcast_receiver.PlayMusicOfflineBroadcast;
-import com.example.musicapp.manager.MediaManager;
 import com.example.musicapp.models.Song;
-import com.example.musicapp.thread.GetAllMusicThread;
+import com.example.musicapp.service.MyMusicOfflineService;
 
 import java.io.IOException;
 import java.util.List;
 
-public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener,
+public class MediaManager implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
     private long currentSong = -1;
     private int positionSong = -1;
@@ -72,9 +62,10 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private MediaPlayer media;
     private NotificationCompat.Builder notiBuilder;
 
-//    private MediaManager mediaManager;
+    //    private Context context;
+    private MyMusicOfflineService myMusicOfflineService;
 
-    // handler update time
+    // handle update current position song
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
@@ -86,90 +77,18 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         }
     };
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-//        mediaManager = new MediaManager(this);
-
-        // init media
+    public MediaManager(MyMusicOfflineService myMusicOfflineService) {
+        this.myMusicOfflineService = myMusicOfflineService;
         initMediaPlayer();
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // receive songs by context
-        if (this.songs == null) {
-            this.songs = (List<Song>) intent.getSerializableExtra(SEND_LIST_SONG);
-        }
-
-        /*// receive songs by context
-        if (mediaManager.getSongs() == null) {
-            mediaManager.setSongs((List<Song>) intent.getSerializableExtra(SEND_LIST_SONG));
-        }*/
-
-        handleActionFromBroadcast(intent);
-        return START_NOT_STICKY;
-    }
-
-    private void handleActionFromBroadcast(Intent intent) {
-        action = intent.getIntExtra(KEY_RECEIVE_ACTION, 0);
-
-        switch (action) {
-            case ACTION_PAUSE:
-                handleActionPause(intent);
-//                mediaManager.handleActionPause(intent);
-                break;
-            case ACTION_RESUME:
-                handleActionResume(intent);
-//                mediaManager.handleActionResume(intent);
-                break;
-            case ACTION_NEXT:
-                handleActionNext(intent);
-//                mediaManager.handleActionNext(intent);
-                break;
-            case ACTION_PREV:
-                handleActionPrev(intent);
-//                mediaManager.handleActionPrev(intent);
-                break;
-            case ACTION_STOP:
-                handleActionStop(intent);
-                /*stopSelf();
-                mediaManager.handleActionStop(intent);*/
-                break;
-            case ACTION_START:
-                handleActionStart(intent);
-//                mediaManager.handleActionStart(intent);
-                break;
-            case ACTION_SHUFFLE:
-                break;
-            case ACTION_LOOP:
-                handleActionLoop(intent);
-//                mediaManager.handleActionLoop(intent);
-                break;
-            case ACTION_UPDATE_TIME:
-                handleActionUpdateTime(intent);
-//                mediaManager.handleActionUpdateTime(intent);
-                break;
-            case ACTION_INIT_UI:
-                handleActionInitUi(intent);
-//                mediaManager.handleActionInitUi(intent);
-                break;
-        }
-    }
-
-    private void handleActionInitUi(Intent intent) {
+    public void handleActionInitUi(Intent intent) {
         if (positionSong == -1)
             return;
         sendActionToActivity(action);
     }
 
-    private void handleActionStart(Intent intent) {
+    public void handleActionStart(Intent intent) {
         Bundle bundle = intent.getExtras();
         positionSong = bundle.getInt(POSITION, 0);
         currentObjSong = songs.get(positionSong);
@@ -177,35 +96,35 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         playMusic(currentObjSong);
     }
 
-    private void handleActionResume(Intent intent) {
+    public void handleActionResume(Intent intent) {
         if (positionSong == -1)
             return;
         //
         resumeMusic();
     }
 
-    private void handleActionPause(Intent intent) {
+    public void handleActionPause(Intent intent) {
         if (positionSong == -1)
             return;
         //
         pauseMusic();
     }
 
-    private void handleActionNext(Intent intent) {
+    public void handleActionNext(Intent intent) {
         if (positionSong == -1)
             return;
         //
         nextMusic();
     }
 
-    private void handleActionPrev(Intent intent) {
+    public void handleActionPrev(Intent intent) {
         if (positionSong == -1)
             return;
         //
         prevMusic();
     }
 
-    private void handleActionLoop(Intent intent) {
+    public void handleActionLoop(Intent intent) {
         if (positionSong == -1)
             return;
         //
@@ -217,7 +136,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         sendActionToActivity(action);
     }
 
-    private void handleActionUpdateTime(Intent intent) {
+    public void handleActionUpdateTime(Intent intent) {
         if (media != null) {
             Bundle bundle = intent.getExtras();
             media.seekTo(bundle.getInt(PROGRESS));
@@ -225,47 +144,9 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         }
     }
 
-    private void handleActionStop(Intent intent) {
-        stopSelf();
+    // stop service before call this method
+    public void handleActionStop(Intent intent) {
         sendActionToActivity(action);
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        mp.start();
-        // get time
-        startTime = mp.getCurrentPosition();
-        finalTime = mp.getDuration();
-
-        // update current UI
-        updateCurrentTime(ACTION_UPDATE_TIME);
-
-        isPlaying = true;
-
-        // update notification
-        sendNotificationMediaStyle();
-        // send response action to activity
-        sendActionToActivity(action);
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        if (media == null) {
-            return;
-        }
-
-        if (isLooping) {
-            mp.start();
-        } else {
-            // auto next
-            action = ACTION_NEXT;
-            nextMusic();
-        }
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        return false;
     }
 
     private void playMusic(Song currentObjSong) {
@@ -276,7 +157,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         Uri trackUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, currentSong);
         //setting this uri as data source
         try {
-            media.setDataSource(getApplicationContext(), trackUri);
+            media.setDataSource(this.myMusicOfflineService.getApplicationContext(), trackUri);
         } catch (IOException e) {
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
@@ -326,13 +207,13 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
     // send notification for start music
     private void sendNotificationMediaStyle() {
-        Intent intentContext = new Intent(MyMusicOfflineService.this, OfflineModeActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(MyMusicOfflineService.this,
+        Intent intentContext = new Intent(this.myMusicOfflineService, OfflineModeActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this.myMusicOfflineService,
                 0, intentContext, PendingIntent.FLAG_UPDATE_CURRENT);
-        MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(this, "tag");
+        MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(this.myMusicOfflineService, "tag");
 
         if (currentObjSong != null) {
-            notiBuilder = new NotificationCompat.Builder(this, MyApplication.CHANNEL_ID)
+            notiBuilder = new NotificationCompat.Builder(this.myMusicOfflineService, MyApplication.CHANNEL_ID)
                     // Show controls on lock screen even when user hides sensitive content
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     // Apply the media style template
@@ -349,18 +230,18 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             notiBuilder
                     .clearActions()
                     // Add media control buttons that invoke intents in your media service
-                    .addAction(R.drawable.ic_skip_previous_24, "Previous", getPendingIntent(this, ACTION_PREV))
-                    .addAction(R.drawable.ic_pause_24, "Pause", getPendingIntent(this, ACTION_PAUSE))
-                    .addAction(R.drawable.ic_skip_next_24, "Next", getPendingIntent(this, ACTION_NEXT))
-                    .addAction(R.drawable.ic_stop_24, "Stop", getPendingIntent(this, ACTION_STOP));
+                    .addAction(R.drawable.ic_skip_previous_24, "Previous", getPendingIntent(this.myMusicOfflineService, ACTION_PREV))
+                    .addAction(R.drawable.ic_pause_24, "Pause", getPendingIntent(this.myMusicOfflineService, ACTION_PAUSE))
+                    .addAction(R.drawable.ic_skip_next_24, "Next", getPendingIntent(this.myMusicOfflineService, ACTION_NEXT))
+                    .addAction(R.drawable.ic_stop_24, "Stop", getPendingIntent(this.myMusicOfflineService, ACTION_STOP));
         } else {
             notiBuilder
                     .clearActions()
                     // Add media control buttons that invoke intents in your media service
-                    .addAction(R.drawable.ic_skip_previous_24, "Previous", getPendingIntent(this, ACTION_PREV))
-                    .addAction(R.drawable.ic_play_arrow_24, "Play", getPendingIntent(this, ACTION_RESUME))
-                    .addAction(R.drawable.ic_skip_next_24, "Next", getPendingIntent(this, ACTION_NEXT))
-                    .addAction(R.drawable.ic_stop_24, "Stop", getPendingIntent(this, ACTION_STOP));
+                    .addAction(R.drawable.ic_skip_previous_24, "Previous", getPendingIntent(this.myMusicOfflineService, ACTION_PREV))
+                    .addAction(R.drawable.ic_play_arrow_24, "Play", getPendingIntent(this.myMusicOfflineService, ACTION_RESUME))
+                    .addAction(R.drawable.ic_skip_next_24, "Next", getPendingIntent(this.myMusicOfflineService, ACTION_NEXT))
+                    .addAction(R.drawable.ic_stop_24, "Stop", getPendingIntent(this.myMusicOfflineService, ACTION_STOP));
         }
 
         notiBuilder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
@@ -369,12 +250,13 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
         Notification notification = notiBuilder.build();
 
-        startForeground(1, notification);
+//        this.myMusicOfflineService.startForegroundWithMediaManager(1, notification);
+
     }
 
     // send data by pendingIntent to broadcast receiver from Notification (to service)
     private PendingIntent getPendingIntent(Context context, int action) {
-        Intent intent = new Intent(this, PlayMusicOfflineBroadcast.class);
+        Intent intent = new Intent(this.myMusicOfflineService, PlayMusicOfflineBroadcast.class);
         intent.putExtra(KEY_SEND_ACTION, action);
         return PendingIntent.getBroadcast(context.getApplicationContext(), action, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
@@ -391,29 +273,53 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         bundle.putDouble(FINAL_TIME, finalTime);
         bundle.putInt(KEY_SEND_ACTION, action);
         intentSend.putExtras(bundle);
-        // send
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
+        // send data to update UI
+        LocalBroadcastManager.getInstance(this.myMusicOfflineService).sendBroadcast(intentSend);
     }
 
     // update current time to activity
     private void updateCurrentTime(int action) {
-        /*Intent intentSend = new Intent(SEND_TO_ACTIVITY);
-        // put data, something
-        Bundle bundle = new Bundle();
-        bundle.putDouble(START_TIME, startTime);
-        bundle.putInt(KEY_SEND_ACTION, action);
-        intentSend.putExtras(bundle);
-        //send
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);*/
-
         sendActionToActivity(action);
         handler.postDelayed(runnable, 1000);
     }
 
-//    // start service with a notification from MediaManager
-//    public void startForegroundWithMediaManager(int id, Notification notification) {
-//        startForeground(id, notification);
-//    }
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        if (media == null) {
+            return;
+        }
+
+        if (isLooping) {
+            mp.start();
+        } else {
+            // auto next
+            action = ACTION_NEXT;
+            nextMusic();
+        }
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        return false;
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mp.start();
+        // get time
+        startTime = mp.getCurrentPosition();
+        finalTime = mp.getDuration();
+
+        // update current UI
+        updateCurrentTime(ACTION_UPDATE_TIME);
+
+        isPlaying = true;
+
+        // update notification
+        sendNotificationMediaStyle();
+        // send response action to activity
+        sendActionToActivity(action);
+    }
 
     // init media player
     private void initMediaPlayer() {
@@ -421,7 +327,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         currentSong = -1;
 
         // setting some properties
-        media.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+        media.setWakeMode(this.myMusicOfflineService.getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         media.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         // set the class as listener
@@ -430,20 +336,96 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         media.setOnErrorListener(this);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        /*mediaManager.destroyMediaManager();
-        mediaManager = null;*/
-
+    public void destroyMediaManager() {
         if (media != null) {
             media.release();
             media = null;
         }
         isPlaying = false;
-        this.songs = null;
+        songs = null;
         currentObjSong = null;
         positionSong = -1;
         currentSong = -1;
+    }
+
+    // GETTER or SETTER
+    public long getCurrentSong() {
+        return currentSong;
+    }
+
+    public void setCurrentSong(long currentSong) {
+        this.currentSong = currentSong;
+    }
+
+    public int getPositionSong() {
+        return positionSong;
+    }
+
+    public void setPositionSong(int positionSong) {
+        this.positionSong = positionSong;
+    }
+
+    public int getAction() {
+        return action;
+    }
+
+    public void setAction(int action) {
+        this.action = action;
+    }
+
+    public double getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(double startTime) {
+        this.startTime = startTime;
+    }
+
+    public double getFinalTime() {
+        return finalTime;
+    }
+
+    public void setFinalTime(double finalTime) {
+        this.finalTime = finalTime;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
+    }
+
+    public boolean isLooping() {
+        return isLooping;
+    }
+
+    public void setLooping(boolean looping) {
+        isLooping = looping;
+    }
+
+    public boolean isShuffling() {
+        return isShuffling;
+    }
+
+    public void setShuffling(boolean shuffling) {
+        isShuffling = shuffling;
+    }
+
+    public Song getCurrentObjSong() {
+        return currentObjSong;
+    }
+
+    public void setCurrentObjSong(Song currentObjSong) {
+        this.currentObjSong = currentObjSong;
+    }
+
+    public List<Song> getSongs() {
+        return songs;
+    }
+
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
     }
 }
