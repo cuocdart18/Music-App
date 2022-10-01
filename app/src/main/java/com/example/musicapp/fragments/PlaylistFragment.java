@@ -21,6 +21,7 @@ import static com.example.musicapp.AppUtils.SEND_LIST_SHUFFLE_SONG;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_SONGS_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.SEND_UPDATE_TIME_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
@@ -107,9 +108,19 @@ public class PlaylistFragment extends Fragment
         }
     };
 
+    private BroadcastReceiver receiverUpdateTimeline = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
+            progressPlay.set((int) bundle.getDouble(START_TIME));
+        }
+    };
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         binding = FragmentPlaylistOfflineModeBinding.inflate(inflater, container, false);
 
         // regis broadcast
@@ -118,6 +129,9 @@ public class PlaylistFragment extends Fragment
 
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiverSongs,
                 new IntentFilter(SEND_SONGS_TO_ACTIVITY));
+
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiverUpdateTimeline,
+                new IntentFilter(SEND_UPDATE_TIME_TO_ACTIVITY));
 
         // set state for service
         isServiceDestroyed.set(true);
@@ -152,6 +166,7 @@ public class PlaylistFragment extends Fragment
         super.onDetach();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiver);
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiverSongs);
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiverUpdateTimeline);
     }
 
     // this method handle any actions from broadcast
@@ -198,7 +213,6 @@ public class PlaylistFragment extends Fragment
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
         isShuffling.set(bundle.getBoolean(STATUS_SHUFFLE));
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         progressMax.set((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
@@ -254,8 +268,6 @@ public class PlaylistFragment extends Fragment
     }
 
     private void handleActionUpdateStartTimeFromService(Bundle bundle) {
-        startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
-        progressPlay.set((int) bundle.getDouble(START_TIME));
     }
 
     private void handleActionStopFromService() {
@@ -310,7 +322,7 @@ public class PlaylistFragment extends Fragment
 
     // TODO: some bugs about: click at progress bar then auto play the first song
     public void onUserChangedProgressSeekbar(SeekBar seekBar) {
-        if (isServiceDestroyed.get()) {
+        if (Boolean.TRUE.equals(isServiceDestroyed.get()) && Boolean.FALSE.equals(isPlaying.get())) {
             return;
         }
         progressPlay.set(seekBar.getProgress());

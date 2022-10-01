@@ -23,6 +23,7 @@ public class AppUtils {
     // for intent
     public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
     public static final String SEND_SONGS_TO_ACTIVITY = "send_songs_to_activity";
+    public static final String SEND_UPDATE_TIME_TO_ACTIVITY = "send_update_time_to_activity";
     public static final String KEY_SEND_ACTION = "send_action";
     public static final String KEY_RECEIVE_ACTION = "receive_action";
     public static final String SEND_LIST_SONG = "send_list_song";

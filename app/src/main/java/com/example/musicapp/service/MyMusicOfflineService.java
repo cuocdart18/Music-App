@@ -20,6 +20,7 @@ import static com.example.musicapp.AppUtils.SEND_LIST_SHUFFLE_SONG;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_SONGS_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
+import static com.example.musicapp.AppUtils.SEND_UPDATE_TIME_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
@@ -88,7 +89,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         public void run() {
             if (media != null) {
                 startTime = media.getCurrentPosition();
-                updateCurrentTime(ACTION_UPDATE_TIME);
+                updateCurrentTime();
             }
         }
     };
@@ -180,6 +181,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
         if (songs != null) {
             sendSongsToActivity(songs);
+            updateCurrentTime();
         }
 
         sendActionToActivity(action);
@@ -237,7 +239,8 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         if (media != null) {
             Bundle bundle = intent.getExtras();
             media.seekTo(bundle.getInt(PROGRESS));
-            updateCurrentTime(ACTION_UPDATE_TIME);
+            startTime = media.getCurrentPosition();
+            updateCurrentTime();
         }
     }
 
@@ -254,7 +257,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         finalTime = mp.getDuration();
 
         // update current UI
-        updateCurrentTime(ACTION_UPDATE_TIME);
+        updateCurrentTime();
 
         isPlaying = true;
 
@@ -314,7 +317,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             media.start();
             isPlaying = true;
             startTime = media.getCurrentPosition();
-            updateCurrentTime(ACTION_UPDATE_TIME);
+            updateCurrentTime();
             sendNotificationMediaStyle();
             sendActionToActivity(action);
         }
@@ -404,7 +407,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         bundle.putBoolean(STATUS_PLAYING, isPlaying);
         bundle.putBoolean(STATUS_LOOPING, isLooping);
         bundle.putBoolean(STATUS_SHUFFLE, isShuffling);
-        bundle.putDouble(START_TIME, startTime);
         bundle.putDouble(FINAL_TIME, finalTime);
         bundle.putInt(KEY_SEND_ACTION, action);
         intentSend.putExtras(bundle);
@@ -421,9 +423,20 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
     }
 
+    // send time of song to activity
+    private void sendTimeOfSongToActivity() {
+        Intent intentSend = new Intent(SEND_UPDATE_TIME_TO_ACTIVITY);
+        // put data, something
+        Bundle bundle = new Bundle();
+        bundle.putDouble(START_TIME, startTime);
+        intentSend.putExtras(bundle);
+        // send
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
+    }
+
     // update current time to activity
-    private void updateCurrentTime(int action) {
-        sendActionToActivity(action);
+    private void updateCurrentTime() {
+        sendTimeOfSongToActivity();
         handler.postDelayed(runnable, 1000);
     }
 
