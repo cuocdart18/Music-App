@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <include
-        android:id="@+id/top_bar_offline_mode"
-        layout="@layout/top_bar_offline_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
-
-    <include
-        android:id="@+id/list_song"
-        layout="@layout/list_song_in_offline_mode"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/layout_music_controller"
-        android:layout_below="@id/top_bar_offline_mode" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <include
-        android:id="@+id/layout_music_controller"
-        layout="@layout/music_controller"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
+        <include
+            android:id="@+id/top_bar_offline_mode"
+            layout="@layout/top_bar_offline_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true" />
 
-</RelativeLayout>
+        <include
+            android:id="@+id/list_song"
+            layout="@layout/list_song_in_offline_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/layout_music_controller"
+            android:layout_below="@id/top_bar_offline_mode" />
+
+        <include
+            android:id="@+id/layout_music_controller"
+            layout="@layout/music_controller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
+</layout>

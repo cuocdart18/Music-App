@@ -1,8 +1,11 @@
 package com.example.musicapp.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 
-public class Song implements Serializable {
+public class Song implements Serializable{
     private long id;
     private String title;
     private String singer;

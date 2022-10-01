@@ -19,6 +19,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:visibility="@{playlistFragment.isServiceDestroyed ? View.GONE : View.VISIBLE}"
         android:orientation="vertical">
 
         <TextView
@@ -68,6 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -75,7 +78,8 @@
                 android:id="@+id/imv_shuffle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:onClick="@{() -> playlistFragment.onClickShuffle()}"
                 android:src="@{playlistFragment.isShuffling ? @drawable/ic_shuffle_on : @drawable/ic_shuffle}" />
 
@@ -83,7 +87,8 @@
                 android:id="@+id/imv_skip_prev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
                 android:onClick="@{() -> playlistFragment.onClickSkipPrev()}"
                 android:src="@drawable/ic_skip_previous" />
 
@@ -91,7 +96,8 @@
                 android:id="@+id/imv_play_pause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
                 android:onClick="@{() -> playlistFragment.onClickPlayPause()}"
                 android:src="@{playlistFragment.isPlaying ? @drawable/ic_pause : @drawable/ic_play_arrow}" />
 
@@ -99,7 +105,8 @@
                 android:id="@+id/imv_skip_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="15dp"
                 android:background="@drawable/ic_skip_next"
                 android:onClick="@{() -> playlistFragment.onClickSkipNext()}" />
 
@@ -107,7 +114,8 @@
                 android:id="@+id/imv_loop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
                 android:onClick="@{() -> playlistFragment.onClickLoop()}"
                 android:src="@{playlistFragment.isLooping ? @drawable/ic_repeat_on : @drawable/ic_repeat}" />
         </LinearLayout>

@@ -17,11 +17,14 @@ import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
 import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
+import static com.example.musicapp.AppUtils.SEND_LIST_SHUFFLE_SONG;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
+import static com.example.musicapp.AppUtils.SEND_SONGS_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
+import static com.example.musicapp.AppUtils.STATUS_SHUFFLE;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,6 +32,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +68,6 @@ public class PlaylistFragment extends Fragment
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
     private Song currentObjSong;
-    private boolean isServiceDestroyed = true;
 
     // live data
     public ObservableField<String> titleCurrentMusic = new ObservableField<>();
@@ -75,17 +78,32 @@ public class PlaylistFragment extends Fragment
     public ObservableField<String> finalTimeText = new ObservableField<>();
     public ObservableField<Integer> progressPlay = new ObservableField<>();
     public ObservableField<Integer> progressMax = new ObservableField<>();
+    public ObservableField<Boolean> isServiceDestroyed = new ObservableField<>();
 
     // receive from service
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
+
             if (bundle == null) {
                 return;
             }
+
             //handle action
             handleActionFromService(bundle);
+        }
+    };
+
+    private BroadcastReceiver receiverSongs = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            List<Song> songsFromService = (List<Song>) intent.getSerializableExtra(SEND_LIST_SHUFFLE_SONG);
+            if (songsFromService != null) {
+                songs = songsFromService;
+                // set a new adapter
+                updateDataInRecycler(songs);
+            }
         }
     };
 
@@ -98,12 +116,20 @@ public class PlaylistFragment extends Fragment
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver,
                 new IntentFilter(SEND_TO_ACTIVITY));
 
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiverSongs,
+                new IntentFilter(SEND_SONGS_TO_ACTIVITY));
+
+        // set state for service
+        isServiceDestroyed.set(true);
+
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        songs = AppUtils.getInstance(getContext()).getAllMediaMp3Files();
 
         // init template
         initConfigSwipeRefreshLayout();
@@ -122,14 +148,10 @@ public class PlaylistFragment extends Fragment
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiver);
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(receiverSongs);
     }
 
     // this method handle any actions from broadcast
@@ -156,6 +178,7 @@ public class PlaylistFragment extends Fragment
                 handleActionStartFromService(bundle);
                 break;
             case ACTION_SHUFFLE:
+                handleActionShuffleFromService(bundle);
                 break;
             case ACTION_LOOP:
                 handleActionLoopFromService(bundle);
@@ -174,6 +197,7 @@ public class PlaylistFragment extends Fragment
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
+        isShuffling.set(bundle.getBoolean(STATUS_SHUFFLE));
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         progressMax.set((int) bundle.getDouble(FINAL_TIME));
@@ -184,6 +208,8 @@ public class PlaylistFragment extends Fragment
         currentObjSong = (Song) bundle.get(OBJ_SONG);
         // set UI
         isPlaying.set(bundle.getBoolean(STATUS_PLAYING));
+        isShuffling.set(bundle.getBoolean(STATUS_SHUFFLE));
+        isLooping.set(bundle.getBoolean(STATUS_LOOPING));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(FINAL_TIME)));
         progressMax.set((int) bundle.getDouble(FINAL_TIME));
         titleCurrentMusic.set(currentObjSong.getTitle());
@@ -224,6 +250,9 @@ public class PlaylistFragment extends Fragment
         isLooping.set(bundle.getBoolean(STATUS_LOOPING));
     }
 
+    private void handleActionShuffleFromService(Bundle bundle) {
+    }
+
     private void handleActionUpdateStartTimeFromService(Bundle bundle) {
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(bundle.getDouble(START_TIME)));
         progressPlay.set((int) bundle.getDouble(START_TIME));
@@ -235,7 +264,7 @@ public class PlaylistFragment extends Fragment
         isPlaying.set(false);
         isShuffling.set(false);
         isLooping.set(false);
-        isServiceDestroyed = true;
+        isServiceDestroyed.set(true);
         titleCurrentMusic.set(DEFAULT_TITLE);
         startTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
         finalTimeText.set(AppUtils.getInstance(getContext()).formatTime(0));
@@ -247,7 +276,6 @@ public class PlaylistFragment extends Fragment
     public void onClickItemInRecycler(Song song) {
         // if service destroyed, call a new service
         callService();
-
         sendDataToMusicService(ACTION_START, song.getPosInList(), POSITION);
     }
 
@@ -257,7 +285,6 @@ public class PlaylistFragment extends Fragment
     }
 
     public void onClickShuffle() {
-        Toast.makeText(getContext(), "Chua code", Toast.LENGTH_SHORT).show();
         sendActionToMusicService(ACTION_SHUFFLE);
     }
 
@@ -281,8 +308,9 @@ public class PlaylistFragment extends Fragment
         sendActionToMusicService(ACTION_LOOP);
     }
 
+    // TODO: some bugs about: click at progress bar then auto play the first song
     public void onUserChangedProgressSeekbar(SeekBar seekBar) {
-        if (!isPlaying.get()) {
+        if (isServiceDestroyed.get()) {
             return;
         }
         progressPlay.set(seekBar.getProgress());
@@ -310,10 +338,8 @@ public class PlaylistFragment extends Fragment
     private void initDataInRecycler() {
         binding.rclvPlaylistSong.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rclvPlaylistSong.setAdapter(adapter);
-
         DividerItemDecoration decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         binding.rclvPlaylistSong.addItemDecoration(decoration);
-        songs = AppUtils.getInstance(getContext()).getAllMediaMp3Files();
         updateDataInRecycler(songs);
     }
 
@@ -332,11 +358,11 @@ public class PlaylistFragment extends Fragment
 
     // call service if destroyed
     private void callService() {
-        if (isServiceDestroyed) {
+        if (Boolean.TRUE.equals(isServiceDestroyed.get())) {
             Intent intentCallService = new Intent(getContext(), MyMusicOfflineService.class);
             intentCallService.putExtra(SEND_LIST_SONG, (Serializable) songs);
             getContext().startService(intentCallService);
-            isServiceDestroyed = false;
+            isServiceDestroyed.set(false);
         }
     }
 
@@ -350,4 +376,5 @@ public class PlaylistFragment extends Fragment
             }
         }, 1000);
     }
+
 }

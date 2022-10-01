@@ -16,11 +16,14 @@ import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
 import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
+import static com.example.musicapp.AppUtils.SEND_LIST_SHUFFLE_SONG;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
+import static com.example.musicapp.AppUtils.SEND_SONGS_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.START_TIME;
 import static com.example.musicapp.AppUtils.STATUS_LOOPING;
 import static com.example.musicapp.AppUtils.STATUS_PLAYING;
+import static com.example.musicapp.AppUtils.STATUS_SHUFFLE;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -34,6 +37,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -43,6 +47,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
 import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.application.MyApplication;
@@ -52,11 +57,15 @@ import com.example.musicapp.models.Song;
 import com.example.musicapp.thread.GetAllMusicThread;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
-    private long currentSong = -1;
+    private long currentSong = -1;  // id of song
     private int positionSong = -1;
     private int action = 0;
 
@@ -71,8 +80,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private List<Song> songs;
     private MediaPlayer media;
     private NotificationCompat.Builder notiBuilder;
-
-//    private MediaManager mediaManager;
 
     // handler update time
     Handler handler = new Handler();
@@ -95,8 +102,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     @Override
     public void onCreate() {
         super.onCreate();
-//        mediaManager = new MediaManager(this);
-
         // init media
         initMediaPlayer();
     }
@@ -108,11 +113,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
             this.songs = (List<Song>) intent.getSerializableExtra(SEND_LIST_SONG);
         }
 
-        /*// receive songs by context
-        if (mediaManager.getSongs() == null) {
-            mediaManager.setSongs((List<Song>) intent.getSerializableExtra(SEND_LIST_SONG));
-        }*/
-
         handleActionFromBroadcast(intent);
         return START_NOT_STICKY;
     }
@@ -123,49 +123,65 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         switch (action) {
             case ACTION_PAUSE:
                 handleActionPause(intent);
-//                mediaManager.handleActionPause(intent);
                 break;
             case ACTION_RESUME:
                 handleActionResume(intent);
-//                mediaManager.handleActionResume(intent);
                 break;
             case ACTION_NEXT:
                 handleActionNext(intent);
-//                mediaManager.handleActionNext(intent);
                 break;
             case ACTION_PREV:
                 handleActionPrev(intent);
-//                mediaManager.handleActionPrev(intent);
                 break;
             case ACTION_STOP:
                 handleActionStop(intent);
-                /*stopSelf();
-                mediaManager.handleActionStop(intent);*/
                 break;
             case ACTION_START:
                 handleActionStart(intent);
-//                mediaManager.handleActionStart(intent);
                 break;
             case ACTION_SHUFFLE:
+                handleActionShuffle(intent);
                 break;
             case ACTION_LOOP:
                 handleActionLoop(intent);
-//                mediaManager.handleActionLoop(intent);
                 break;
             case ACTION_UPDATE_TIME:
                 handleActionUpdateTime(intent);
-//                mediaManager.handleActionUpdateTime(intent);
                 break;
             case ACTION_INIT_UI:
                 handleActionInitUi(intent);
-//                mediaManager.handleActionInitUi(intent);
                 break;
         }
+    }
+
+    private void handleActionShuffle(Intent intent) {
+        // turn off/on shuffle
+        if (isShuffling) {
+            songs = AppUtils.getInstance(this).getAllMediaMp3Files();
+            // update list songs to show for user
+            sendSongsToActivity(songs);
+            isShuffling = false;
+        } else {
+            shuffleSongs(songs);
+            // update list songs to show for user
+            sendSongsToActivity(songs);
+            isShuffling = true;
+        }
+        // auto play the first song in list
+        currentObjSong = songs.get(0);
+        positionSong = 0;
+        action = ACTION_START;
+        playMusic(currentObjSong);
     }
 
     private void handleActionInitUi(Intent intent) {
         if (positionSong == -1)
             return;
+
+        if (songs != null) {
+            sendSongsToActivity(songs);
+        }
+
         sendActionToActivity(action);
     }
 
@@ -387,6 +403,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         bundle.putSerializable(OBJ_SONG, currentObjSong);
         bundle.putBoolean(STATUS_PLAYING, isPlaying);
         bundle.putBoolean(STATUS_LOOPING, isLooping);
+        bundle.putBoolean(STATUS_SHUFFLE, isShuffling);
         bundle.putDouble(START_TIME, startTime);
         bundle.putDouble(FINAL_TIME, finalTime);
         bundle.putInt(KEY_SEND_ACTION, action);
@@ -395,25 +412,20 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
     }
 
+    // send a list song to activity
+    private void sendSongsToActivity(List<Song> sendSongs) {
+        Intent intentSend = new Intent(SEND_SONGS_TO_ACTIVITY);
+        // put data, something
+        intentSend.putExtra(SEND_LIST_SHUFFLE_SONG, (Serializable) sendSongs);
+        // send
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);
+    }
+
     // update current time to activity
     private void updateCurrentTime(int action) {
-        /*Intent intentSend = new Intent(SEND_TO_ACTIVITY);
-        // put data, something
-        Bundle bundle = new Bundle();
-        bundle.putDouble(START_TIME, startTime);
-        bundle.putInt(KEY_SEND_ACTION, action);
-        intentSend.putExtras(bundle);
-        //send
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intentSend);*/
-
         sendActionToActivity(action);
         handler.postDelayed(runnable, 1000);
     }
-
-//    // start service with a notification from MediaManager
-//    public void startForegroundWithMediaManager(int id, Notification notification) {
-//        startForeground(id, notification);
-//    }
 
     // init media player
     private void initMediaPlayer() {
@@ -433,17 +445,29 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     @Override
     public void onDestroy() {
         super.onDestroy();
-        /*mediaManager.destroyMediaManager();
-        mediaManager = null;*/
 
         if (media != null) {
             media.release();
             media = null;
         }
         isPlaying = false;
-        this.songs = null;
+        songs = null;
         currentObjSong = null;
         positionSong = -1;
         currentSong = -1;
+    }
+
+    private void shuffleSongs(List<Song> songsOrigin) {
+        Random random = new Random();
+        for (int i = 0; i < songsOrigin.size(); i++) {
+            int randomIndexToSwap = random.nextInt(songsOrigin.size());
+            Song song = songsOrigin.get(i);
+
+            songsOrigin.set(i, songsOrigin.get(randomIndexToSwap));
+            songsOrigin.get(i).setPosInList(i);
+
+            songsOrigin.set(randomIndexToSwap, song);
+            songsOrigin.get(randomIndexToSwap).setPosInList(randomIndexToSwap);
+        }
     }
 }

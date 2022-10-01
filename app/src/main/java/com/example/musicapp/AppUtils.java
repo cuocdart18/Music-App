@@ -22,9 +22,11 @@ public class AppUtils {
     public static final String DEFAULT_TITLE = "No music is playing";
     // for intent
     public static final String SEND_TO_ACTIVITY = "send_data_to_activity";
+    public static final String SEND_SONGS_TO_ACTIVITY = "send_songs_to_activity";
     public static final String KEY_SEND_ACTION = "send_action";
     public static final String KEY_RECEIVE_ACTION = "receive_action";
     public static final String SEND_LIST_SONG = "send_list_song";
+    public static final String SEND_LIST_SHUFFLE_SONG = "send_list_shuffle_song";
 
     // for bundle
     public static final String PROGRESS = "progress";
@@ -33,6 +35,7 @@ public class AppUtils {
     public static final String FINAL_TIME = "final_time";
     public static final String STATUS_PLAYING = "is_playing";
     public static final String STATUS_LOOPING = "is_looping";
+    public static final String STATUS_SHUFFLE = "is_shuffle";
     public static final String OBJ_SONG = "obj_song";
     public static final String ACTION_MUSIC = "action_music_to_activity";
 
@@ -107,6 +110,7 @@ public class AppUtils {
                 long thisId = cursor.getLong(idColumn);
                 String thisTitle = cursor.getString(titleColumn);
                 String thisArtist = cursor.getString(artistColumn);
+
                 songs.add(new Song(thisId, thisTitle, thisArtist, posInList));
                 posInList++;
             } while (cursor.moveToNext());
