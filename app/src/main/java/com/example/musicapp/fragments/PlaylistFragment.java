@@ -7,9 +7,11 @@ import static com.example.musicapp.AppUtils.ACTION_PAUSE;
 import static com.example.musicapp.AppUtils.ACTION_PREV;
 import static com.example.musicapp.AppUtils.ACTION_RESUME;
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
+import static com.example.musicapp.AppUtils.ACTION_SORT;
 import static com.example.musicapp.AppUtils.ACTION_START;
 import static com.example.musicapp.AppUtils.ACTION_STOP;
 import static com.example.musicapp.AppUtils.ACTION_UPDATE_TIME;
+import static com.example.musicapp.AppUtils.DATA_OPTION_SORT;
 import static com.example.musicapp.AppUtils.DEFAULT_TITLE;
 import static com.example.musicapp.AppUtils.FINAL_TIME;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
@@ -17,7 +19,7 @@ import static com.example.musicapp.AppUtils.KEY_SEND_ACTION;
 import static com.example.musicapp.AppUtils.OBJ_SONG;
 import static com.example.musicapp.AppUtils.POSITION;
 import static com.example.musicapp.AppUtils.PROGRESS;
-import static com.example.musicapp.AppUtils.SEND_LIST_SHUFFLE_SONG;
+import static com.example.musicapp.AppUtils.SEND_LIST_SHUFFLE_SORT_SONG;
 import static com.example.musicapp.AppUtils.SEND_LIST_SONG;
 import static com.example.musicapp.AppUtils.SEND_SONGS_TO_ACTIVITY;
 import static com.example.musicapp.AppUtils.SEND_TO_ACTIVITY;
@@ -33,7 +35,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +55,6 @@ import com.example.musicapp.R;
 import com.example.musicapp.activity.OfflineModeActivity;
 import com.example.musicapp.adapter.ICallbackOnClickItem;
 import com.example.musicapp.adapter.ListSongRecyclerAdapter;
-import com.example.musicapp.databinding.ActivityOfflineModeBinding;
 import com.example.musicapp.databinding.FragmentPlaylistOfflineModeBinding;
 import com.example.musicapp.models.Song;
 import com.example.musicapp.service.MyMusicOfflineService;
@@ -101,7 +101,7 @@ public class PlaylistFragment extends Fragment
     private BroadcastReceiver receiverSongs = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            List<Song> songsFromService = (List<Song>) intent.getSerializableExtra(SEND_LIST_SHUFFLE_SONG);
+            List<Song> songsFromService = (List<Song>) intent.getSerializableExtra(SEND_LIST_SHUFFLE_SORT_SONG);
             if (songsFromService != null) {
                 songs = songsFromService;
                 // set a new adapter
@@ -330,8 +330,9 @@ public class PlaylistFragment extends Fragment
         sendActionToMusicService(ACTION_SHUFFLE);
     }
 
-    public void onClickSortBtnInTopBar() {
-        Log.e("TAG", "sorting");
+    public void onClickSortBtnInTopBar(int option) {
+        // send action sort to service
+        sendDataToMusicService(ACTION_SORT, option, DATA_OPTION_SORT);
     }
 
     // TODO: some bugs about: click at progress bar then auto play the first song

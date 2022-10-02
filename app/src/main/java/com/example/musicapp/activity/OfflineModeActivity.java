@@ -2,6 +2,9 @@ package com.example.musicapp.activity;
 
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
+import static com.example.musicapp.AppUtils.SORT_A_Z;
+import static com.example.musicapp.AppUtils.SORT_DEFAULT;
+import static com.example.musicapp.AppUtils.SORT_Z_A;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -92,13 +95,13 @@ public class OfflineModeActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void onClickBtnSearchInTopBar() {
-        if (playlistFragment == null)
-            return;
-
     }
 
     private void onClickBtnFilterInTopBar() {
-
+        if (playlistFragment == null)
+            return;
+        // test
+        playlistFragment.onClickSortBtnInTopBar(SORT_DEFAULT);
     }
 
     public void setPlaylistFragment(PlaylistFragment playlistFragment) {
