@@ -332,6 +332,7 @@ public class PlaylistFragment extends Fragment
 
     public void onClickSortBtnInTopBar(int option) {
         // send action sort to service
+        callService();
         sendDataToMusicService(ACTION_SORT, option, DATA_OPTION_SORT);
     }
 

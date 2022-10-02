@@ -66,6 +66,7 @@ import java.util.Random;
 
 public class MyMusicOfflineService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
+    private static final String TAG = MyMusicOfflineService.class.getSimpleName();
     private long currentSong = -1;  // id of song
     private int positionSong = -1;
     private int action = 0;
@@ -120,6 +121,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
 
     private void handleActionFromBroadcast(Intent intent) {
         action = intent.getIntExtra(KEY_RECEIVE_ACTION, 0);
+        Log.i(TAG, "request " + action + " and handling");
 
         switch (action) {
             case ACTION_PAUSE:
@@ -151,6 +153,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
                 break;
             case ACTION_INIT_UI:
                 handleActionInitUi(intent);
+                break;
             case ACTION_SORT:
                 handleActionSort(intent);
                 break;
@@ -168,6 +171,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         }
         sendSongsToActivity(songs);
         // auto play the first song in list
+        isShuffling = false;
         currentObjSong = songs.get(0);
         positionSong = 0;
         action = ACTION_START;
