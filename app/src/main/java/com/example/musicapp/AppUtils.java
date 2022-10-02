@@ -51,6 +51,11 @@ public class AppUtils {
     public static final int ACTION_UPDATE_TIME = 1009;
     public static final int ACTION_INIT_UI = 1010;
 
+    // for shared preferences
+    public static final String SAVE_DATA_LOCAL = "save_data_local_use_shared_preferences";
+    public static final String KEY_IS_FIRST_INSTALL = "key_is_first_install_app";
+
+
     private static AppUtils instance;
     private Context context;
 

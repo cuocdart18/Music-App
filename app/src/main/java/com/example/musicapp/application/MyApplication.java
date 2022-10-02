@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 
 import com.example.musicapp.R;
+import com.example.musicapp.manager.SaveDataLocalManager;
 
 public class MyApplication extends Application {
     public static final String CHANNEL_ID = "CHANNEL_SERVICE_PLAY_MUSIC";
@@ -13,6 +14,8 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        SaveDataLocalManager.init(getApplicationContext());
 
         createChannelNotification();
     }

@@ -321,7 +321,7 @@ public class PlaylistFragment extends Fragment
     }
 
     // TODO: some bugs about: click at progress bar then auto play the first song
-    public void onUserChangedProgressSeekbar(SeekBar seekBar) {
+    public void onUserStopTrackingTouchSeekbar(SeekBar seekBar) {
         if (Boolean.TRUE.equals(isServiceDestroyed.get()) && Boolean.FALSE.equals(isPlaying.get())) {
             return;
         }

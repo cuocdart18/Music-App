@@ -20,8 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:visibility="@{playlistFragment.isServiceDestroyed ? View.GONE : View.VISIBLE}"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="@{playlistFragment.isServiceDestroyed ? View.GONE : View.VISIBLE}">
 
         <TextView
             android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                 android:layout_toStartOf="@id/tv_final_time"
                 android:layout_toEndOf="@id/tv_start_time"
                 android:max="@{playlistFragment.progressMax}"
-                android:onStopTrackingTouch="@{(seekbar) -> playlistFragment.onUserChangedProgressSeekbar(seekbar)}"
+                android:onStopTrackingTouch="@{(seekbar) -> playlistFragment.onUserStopTrackingTouchSeekbar(seekbar)}"
                 android:progress="@{playlistFragment.progressPlay}" />
 
             <TextView

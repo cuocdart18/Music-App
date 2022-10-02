@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.musicapp.AppUtils;
 import com.example.musicapp.R;
 import com.example.musicapp.databinding.ActivityMainBinding;
+import com.example.musicapp.manager.SaveDataLocalManager;
 import com.example.musicapp.models.Song;
 import com.google.gson.Gson;
 
@@ -54,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // init dialog notify about: songs of zing mp3 is encrypted
-        showAlertDialogNotifyEncrypt();
+        if (SaveDataLocalManager.getInstance().getFirstInstallApp()) {
+            showAlertDialogNotifyEncrypt();
+        }
     }
 
     private void onClickBtnOnlineMode() {
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         b.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                SaveDataLocalManager.getInstance().setFirstInstallApp(false);
                 dialogInterface.cancel();
             }
         });
