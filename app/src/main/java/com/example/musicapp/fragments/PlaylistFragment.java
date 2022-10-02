@@ -330,6 +330,10 @@ public class PlaylistFragment extends Fragment
         sendActionToMusicService(ACTION_SHUFFLE);
     }
 
+    public void onClickSortBtnInTopBar() {
+        Log.e("TAG", "sorting");
+    }
+
     // TODO: some bugs about: click at progress bar then auto play the first song
     public void onUserStopTrackingTouchSeekbar(SeekBar seekBar) {
         if (Boolean.TRUE.equals(isServiceDestroyed.get()) && Boolean.FALSE.equals(isPlaying.get())) {

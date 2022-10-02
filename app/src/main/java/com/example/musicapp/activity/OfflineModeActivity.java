@@ -92,6 +92,8 @@ public class OfflineModeActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void onClickBtnSearchInTopBar() {
+        if (playlistFragment == null)
+            return;
 
     }
 
