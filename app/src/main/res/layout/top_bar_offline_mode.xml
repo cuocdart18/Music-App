@@ -1,46 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/teal_700"
-    android:padding="10dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/tv_name_offline_mode"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_margin="5dp"
-        android:text="Offline mode"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:background="@color/teal_700"
+        android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/imv_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="10dp"
-        android:layout_toStartOf="@id/imv_shuffle"
-        android:background="@drawable/ic_search" />
+        <TextView
+            android:id="@+id/tv_name_offline_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_margin="5dp"
+            android:text="Offline mode"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <ImageView
-        android:id="@+id/imv_shuffle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="10dp"
-        android:layout_toStartOf="@id/imv_filter"
-        android:background="@drawable/ic_shuffle_top_bar" />
+        <ImageView
+            android:id="@+id/imv_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@id/imv_shuffle"
+            android:src="@drawable/ic_search" />
 
-    <ImageView
-        android:id="@+id/imv_filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="10dp"
-        android:background="@drawable/ic_filter_alt" />
+        <ImageView
+            android:id="@+id/imv_shuffle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@id/imv_filter"
+            android:src="@drawable/ic_shuffle_top_bar" />
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/imv_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_filter_alt" />
+
+    </RelativeLayout>
+</layout>

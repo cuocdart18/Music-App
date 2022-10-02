@@ -61,10 +61,12 @@ import com.example.musicapp.service.MyMusicOfflineService;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 public class PlaylistFragment extends Fragment
         implements SwipeRefreshLayout.OnRefreshListener, ICallbackOnClickItem {
     private FragmentPlaylistOfflineModeBinding binding;
+    private OfflineModeActivity offlineModeActivity;
 
     private ListSongRecyclerAdapter adapter = new ListSongRecyclerAdapter(this);
     private List<Song> songs;
@@ -142,7 +144,10 @@ public class PlaylistFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        offlineModeActivity = (OfflineModeActivity) getActivity();
+        Objects.requireNonNull(offlineModeActivity).setPlaylistFragment(this);
 
+        // load all songs from device
         songs = AppUtils.getInstance(getContext()).getAllMediaMp3Files();
 
         // init template
@@ -318,6 +323,11 @@ public class PlaylistFragment extends Fragment
 
     public void onClickLoop() {
         sendActionToMusicService(ACTION_LOOP);
+    }
+
+    public void onClickShuffleBtnInTopBar() {
+        callService();
+        sendActionToMusicService(ACTION_SHUFFLE);
     }
 
     // TODO: some bugs about: click at progress bar then auto play the first song
