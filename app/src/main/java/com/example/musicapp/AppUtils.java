@@ -27,7 +27,7 @@ public class AppUtils {
     public static final String KEY_SEND_ACTION = "send_action";
     public static final String KEY_RECEIVE_ACTION = "receive_action";
     public static final String SEND_LIST_SONG = "send_list_song";
-    public static final String SEND_LIST_SHUFFLE_SONG = "send_list_shuffle_song";
+    public static final String SEND_LIST_SHUFFLE_SORT_SONG = "send_list_shuffle_sort_song";
 
     // for bundle
     public static final String PROGRESS = "progress";
@@ -50,6 +50,13 @@ public class AppUtils {
     public static final int ACTION_LOOP = 1008;
     public static final int ACTION_UPDATE_TIME = 1009;
     public static final int ACTION_INIT_UI = 1010;
+    public static final int ACTION_SORT = 1011;
+
+    // for sort
+    public static final int SORT_DEFAULT = 100;
+    public static final int SORT_A_Z = 101;
+    public static final int SORT_Z_A = 102;
+    public static final String DATA_OPTION_SORT = "send_data_for_action_sort";
 
     // for shared preferences
     public static final String SAVE_DATA_LOCAL = "save_data_local_use_shared_preferences";

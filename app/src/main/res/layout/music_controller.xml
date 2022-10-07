@@ -52,7 +52,7 @@
                 android:layout_toStartOf="@id/tv_final_time"
                 android:layout_toEndOf="@id/tv_start_time"
                 android:max="@{playlistFragment.progressMax}"
-                android:onStopTrackingTouch="@{(seekbar) -> playlistFragment.onUserStopTrackingTouchSeekbar(seekbar)}"
+                android:onProgressChanged="@{(seekbar, progress, fromUser) -> playlistFragment.onProgressChanged(seekbar, progress, fromUser)}"
                 android:progress="@{playlistFragment.progressPlay}" />
 
             <TextView

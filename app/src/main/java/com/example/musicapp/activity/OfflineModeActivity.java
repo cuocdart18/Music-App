@@ -2,13 +2,18 @@ package com.example.musicapp.activity;
 
 import static com.example.musicapp.AppUtils.ACTION_SHUFFLE;
 import static com.example.musicapp.AppUtils.KEY_RECEIVE_ACTION;
+import static com.example.musicapp.AppUtils.SORT_A_Z;
+import static com.example.musicapp.AppUtils.SORT_DEFAULT;
+import static com.example.musicapp.AppUtils.SORT_Z_A;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapp.adapter.ViewPager2ListSongAdapter;
@@ -92,11 +97,32 @@ public class OfflineModeActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void onClickBtnSearchInTopBar() {
-
     }
 
     private void onClickBtnFilterInTopBar() {
+        if (playlistFragment == null)
+            return;
 
+        // show dialog for user choose sort mode
+        String[] items = {"Default", "A-Z", "Z-A"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Sort by ?");
+        builder.setCancelable(true);
+        builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (items[which].equals("A-Z")) {
+                    playlistFragment.onClickSortBtnInTopBar(SORT_A_Z);
+                } else if (items[which].equals("Z-A")) {
+                    playlistFragment.onClickSortBtnInTopBar(SORT_Z_A);
+                } else if (items[which].equals("Default")) {
+                    playlistFragment.onClickSortBtnInTopBar(SORT_DEFAULT);
+                }
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     public void setPlaylistFragment(PlaylistFragment playlistFragment) {
