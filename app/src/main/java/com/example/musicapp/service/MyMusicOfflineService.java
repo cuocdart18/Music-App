@@ -114,7 +114,6 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         if (this.songs == null) {
             this.songs = (List<Song>) intent.getSerializableExtra(SEND_LIST_SONG);
         }
-
         handleActionFromBroadcast(intent);
         return START_NOT_STICKY;
     }
@@ -201,12 +200,10 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
     private void handleActionInitUi(Intent intent) {
         if (positionSong == -1)
             return;
-
         if (songs != null) {
             sendSongsToActivity(songs);
             updateCurrentTime();
         }
-
         sendActionToActivity(action);
     }
 
@@ -214,42 +211,36 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         Bundle bundle = intent.getExtras();
         positionSong = bundle.getInt(POSITION, 0);
         currentObjSong = songs.get(positionSong);
-
         playMusic(currentObjSong);
     }
 
     private void handleActionResume(Intent intent) {
         if (positionSong == -1)
             return;
-        //
         resumeMusic();
     }
 
     private void handleActionPause(Intent intent) {
         if (positionSong == -1)
             return;
-        //
         pauseMusic();
     }
 
     private void handleActionNext(Intent intent) {
         if (positionSong == -1)
             return;
-        //
         nextMusic();
     }
 
     private void handleActionPrev(Intent intent) {
         if (positionSong == -1)
             return;
-        //
         prevMusic();
     }
 
     private void handleActionLoop(Intent intent) {
         if (positionSong == -1)
             return;
-        //
         if (isLooping) {
             isLooping = false;
         } else {
@@ -279,14 +270,12 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         startTime = mp.getCurrentPosition();
         finalTime = mp.getDuration();
 
+        isPlaying = true;
+
         // update current UI
         updateCurrentTime();
 
-        isPlaying = true;
-
-        // update notification
         sendNotificationMediaStyle();
-        // send response action to activity
         sendActionToActivity(action);
     }
 
@@ -320,7 +309,7 @@ public class MyMusicOfflineService extends Service implements MediaPlayer.OnPrep
         try {
             media.setDataSource(getApplicationContext(), trackUri);
         } catch (IOException e) {
-            Log.e("MUSIC SERVICE", "Error setting data source", e);
+            Log.e(TAG, "Error setting data source", e);
         }
         //complete the play song
         media.prepareAsync();

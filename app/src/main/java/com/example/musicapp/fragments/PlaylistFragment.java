@@ -336,13 +336,15 @@ public class PlaylistFragment extends Fragment
         sendDataToMusicService(ACTION_SORT, option, DATA_OPTION_SORT);
     }
 
-    // TODO: some bugs about: click at progress bar then auto play the first song
-    public void onUserStopTrackingTouchSeekbar(SeekBar seekBar) {
-        if (Boolean.TRUE.equals(isServiceDestroyed.get()) && Boolean.FALSE.equals(isPlaying.get())) {
+    // on change progress of seekBar
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (Boolean.TRUE.equals(isServiceDestroyed.get()) || currentObjSong == null) {
             return;
         }
-        progressPlay.set(seekBar.getProgress());
-        sendDataToMusicService(ACTION_UPDATE_TIME, progressPlay.get(), PROGRESS);
+        if (fromUser) {
+            progressPlay.set(seekBar.getProgress());
+            sendDataToMusicService(ACTION_UPDATE_TIME, progressPlay.get(), PROGRESS);
+        }
     }
 
     // send action to service by start (go to startCommand)
